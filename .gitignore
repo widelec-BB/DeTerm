@@ -1,0 +1,5 @@
+Makefile
+*.d
+*.mo
+determ
+determ_DEBUG
