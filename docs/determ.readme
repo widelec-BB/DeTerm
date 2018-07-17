@@ -1,0 +1,16 @@
+Short:          Simple terminal for debug
+Author:         Filip "widelec" Maryjañski
+Type:           comm/term
+Version:        1.0
+Architecture:   ppc-morphos
+
+
+This is a very simple terminal program for receiving
+debug output via serial (with or without usb->rs232
+converter).
+
+What do you need:
+----------------
+
+ - any computer with MorphOS 3.11 running on.
+ 
