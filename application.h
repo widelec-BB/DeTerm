@@ -6,25 +6,10 @@
 
 #import <mui/MUIFramework.h>
 
-@interface Application : MUIApplication <OBSignalHandlerDelegate>
+@interface Application : MUIApplication
 
-@property (nonatomic) MCCPowerTerm *termobj;
-@property (nonatomic) MUIGroup *buttonsgroup;
-
--(BOOL)setup;
--(void)cleanup;
-
--(BOOL)connectWith:(STRPTR)deviceName;
-
--(BOOL)connectCH34X;
--(BOOL)connectPL2303;
--(BOOL)connectRealSerial;
-
--(void)performWithSignalHandler:(OBSignalHandler*)handler;
-
--(void)addToTerm:(APTR)data length:(ULONG)length;
--(void)addToTerm:(APTR)data;
-
--(void)hideButtons;
+-(VOID) run;
+-(VOID) about;
+-(VOID) closeWindow: (MUIWindow *)w;
 
 @end

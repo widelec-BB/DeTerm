@@ -26,8 +26,8 @@
 #define APP_AUTHOR         "Filip \"widelec\" Maryjanski"
 
 #define APP_CYEARS         "2018 - "__YEAR__
-#define APP_VER_MAJOR      2
-#define APP_VER_MINOR      0
+#define APP_VER_MAJOR      1
+#define APP_VER_MINOR      1
 #define APP_VER_NO         MACRO_TO_STRING(APP_VER_MAJOR)"."MACRO_TO_STRING(APP_VER_MINOR)
 #define APP_COPYRIGHT      "(c) " APP_CYEARS " " APP_AUTHOR
 #define APP_VERSION        "$VER: " APP_TITLE " " APP_VER_NO " " __APP_DATE__ " " APP_COPYRIGHT
@@ -35,13 +35,6 @@
 #define APP_SCREEN_TITLE   APP_TITLE " " APP_VER_NO " " __APP_DATE__
 
 #define MUI_IMAGE_FILE_STR(path) "\33I[4:" path ".mbr]"
-
-#ifndef SERIALNAME
-#define SERIALNAME "serial.device"
-#endif
-
-#define SERIAL_CH34X_DEVICE_NAME  "serialch34x.device"
-#define SERIAL_PL2303_DEVICE_NAME "serialpl2303.device"
 
 #ifdef DEBUG
 #define _between(a,x,b) ((x)>=(a) && (x)<=(b))
