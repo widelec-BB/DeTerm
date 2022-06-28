@@ -1,48 +1,40 @@
 /*
- * Copyright (c) 2018 Filip "widelec-BB" Maryjanski, BlaBla group.
+ * Copyright (c) 2018-2022 Filip "widelec-BB" Maryjanski, BlaBla group.
  * All rights reserved.
  * Distributed under the terms of the MIT License.
  */
 
-#ifndef __GLOBAL_DEFINES_H__
-#define __GLOBAL_DEFINES_H__
-
-#ifdef __DEBUG__
+#if DEBUG
 #include <clib/debug_protos.h>
-#define tprintf(template, ...) KPrintF((CONST_STRPTR)APP_NAME " " __FILE__ " %d: " template, __LINE__ , ##__VA_ARGS__)
-#define ENTER(...) KPrintF((CONST_STRPTR)APP_NAME " enters: %s\n", __PRETTY_FUNCTION__)
-#define LEAVE(...) KPrintF((CONST_STRPTR)APP_NAME " leaves: %s\n", __PRETTY_FUNCTION__)
-#define LEAVE_ERROR(reason) KPrintF((CONST_STRPTR)APP_NAME " leaves %s with ERROR!: %s\n", __PRETTY_FUNCTION__, reason)
-#define strd(x)(((STRPTR)x) ? (STRPTR)(x) : (STRPTR)"NULL") 
+#define tprintf(template, ...) KPrintF((CONST_STRPTR)APP_TITLE " " __FILE__ " %d: " template, __LINE__ , ##__VA_ARGS__)
+#define ENTER(...) KPrintF((CONST_STRPTR)APP_TITLE " enters: %s\n", __PRETTY_FUNCTION__)
+#define LEAVE(...) KPrintF((CONST_STRPTR)APP_TITLE " leaves: %s\n", __PRETTY_FUNCTION__)
+#define LEAVE_ERROR(reason) KPrintF((CONST_STRPTR)APP_TITLE " leaves %s with ERROR!: %s\n", __PRETTY_FUNCTION__, reason)
+#define strd(x)(((STRPTR)x) ? (STRPTR)(x) : (STRPTR)"NULL")
 #else
 #define tprintf(...)
 #define ENTER(...)
 #define LEAVE(...)
 #define LEAVE_ERROR(...)
 #define strd(x)
-static inline VOID DumpBinaryData(UBYTE *data, ULONG len)
-{
-	return;
-}
 #endif
 
 #define TO_STRING(x) #x
 #define MACRO_TO_STRING(x) TO_STRING(x)
 
-#define APP_DATE            "16.07.2018"
-#define APP_AUTHOR          "Filip \"widelec\" Maryjañski"
-#define APP_NAME            "DeTerm"
-#define APP_CYEARS          "2018"
-#define APP_BASE            "DETERM"
-#define APP_DESC            GetString(MSG_APPLICATION_DESCRIPTION)
-#define APP_VER_MAJOR       1
-#define APP_VER_MINOR       0
-#define APP_VER_NO          MACRO_TO_STRING(APP_VER_MAJOR)"."MACRO_TO_STRING(APP_VER_MINOR)
-#define APP_COPYRIGHT       " (c) " APP_CYEARS " BlaBla group"
-#define APP_VER             "$VER: " APP_NAME " " APP_VER_NO " " APP_DATE APP_COPYRIGHT
-#define APP_SCREEN_TITLE    APP_NAME " " APP_VER_NO " " APP_DATE  
+#define APP_TITLE          "DeTerm"
+#define APP_AUTHOR         "Filip \"widelec\" Maryjanski"
 
-#define APP_ABOUT    "\33b%p\33n\n\t" APP_AUTHOR "\n\n"
+#define APP_CYEARS         "2018 - "__YEAR__
+#define APP_VER_MAJOR      2
+#define APP_VER_MINOR      0
+#define APP_VER_NO         MACRO_TO_STRING(APP_VER_MAJOR)"."MACRO_TO_STRING(APP_VER_MINOR)
+#define APP_COPYRIGHT      "(c) " APP_CYEARS " " APP_AUTHOR
+#define APP_VERSION        "$VER: " APP_TITLE " " APP_VER_NO " " __APP_DATE__ " " APP_COPYRIGHT
+
+#define APP_SCREEN_TITLE   APP_TITLE " " APP_VER_NO " " __APP_DATE__
+
+#define MUI_IMAGE_FILE_STR(path) "\33I[4:" path ".mbr]"
 
 #ifndef SERIALNAME
 #define SERIALNAME "serial.device"
@@ -51,7 +43,7 @@ static inline VOID DumpBinaryData(UBYTE *data, ULONG len)
 #define SERIAL_CH34X_DEVICE_NAME  "serialch34x.device"
 #define SERIAL_PL2303_DEVICE_NAME "serialpl2303.device"
 
-#ifdef __DEBUG__
+#ifdef DEBUG
 #define _between(a,x,b) ((x)>=(a) && (x)<=(b))
 #define is_visible_ascii(x) _between(32, x, 127) 
 
@@ -103,7 +95,9 @@ static inline VOID DumpBinaryData(UBYTE *data, ULONG len)
 
 	KPrintF("--------- packet dump end --------------\n");
 }
-
+#else
+static inline VOID DumpBinaryData(UBYTE *data, ULONG len)
+{
+	return;
+}
 #endif /* __DEBUG__ */
-
-#endif

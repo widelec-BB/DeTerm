@@ -7,18 +7,9 @@
 #import <mui/MUIFramework.h>
 
 @interface Application : MUIApplication <OBSignalHandlerDelegate>
-{
-	MCCPowerTerm *_termobj;
-	struct MsgPort *_rxPort;
-	struct IOExtSer *_ioExtSer;
-	OBSignalHandler *_sigHandler;
-	UBYTE _buffer[128];
-	ULONG _bufferPos;
-	UBYTE _readByte;
-	MUIGroup *_buttonsgroup;
-}
-@property (readwrite, nonatomic, assign) MCCPowerTerm *termobj;
-@property (nonatomic, assign) MUIGroup *buttonsgroup;
+
+@property (nonatomic) MCCPowerTerm *termobj;
+@property (nonatomic) MUIGroup *buttonsgroup;
 
 -(BOOL)setup;
 -(void)cleanup;

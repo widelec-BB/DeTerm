@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Filip "widelec-BB" Maryjanski, BlaBla group.
+ * Copyright (c) 2018-2022 Filip "widelec-BB" Maryjanski, BlaBla group.
  * All rights reserved.
  * Distributed under the terms of the MIT License.
  */
@@ -9,29 +9,33 @@
 #import "globaldefines.h"
 #import "application.h"
 
+#if !__has_feature(objc_arc)
+#error "Automatic Reference Counting is disabled"
+#endif
+
 int muiMain(int argc, char *argv[])
 {
 	Application *mapp = [[Application alloc] init];
 	MCCPowerTerm *termobj = [[MCCPowerTerm alloc] init];
 	MUIButton *buttons[3];
 
-	[mapp setTitle:@APP_NAME];
+	[mapp setTitle:@APP_TITLE];
 	[mapp setDescription:@"Very simple DEbug TERMinal"];
-	[mapp setApplicationVersion:@APP_VER];
+	[mapp setApplicationVersion:@APP_VERSION];
 	[mapp setAuthor:@APP_AUTHOR];
 	[mapp setCopyright:@APP_COPYRIGHT];
 	[mapp setTermobj: termobj];
 
-	MUIGroup *g = [[[MUIGroup alloc] initWithObjects:
-		[termobj autorelease],
-		(mapp.buttonsgroup = [[[MUIGroup alloc] initWithObjects: 
-			(buttons[0] = [[[MUIButton alloc] initWithLabel:@"connect to "SERIAL_CH34X_DEVICE_NAME] autorelease]),
-			(buttons[1] = [[[MUIButton alloc] initWithLabel:@"connect to "SERIAL_PL2303_DEVICE_NAME] autorelease]),
-			(buttons[2] = [[[MUIButton alloc] initWithLabel:@"connect to "SERIALNAME] autorelease]),
-		nil] autorelease]),
-	nil] autorelease];
+	MUIGroup *g = [[MUIGroup alloc] initWithObjects:
+		termobj,
+		(mapp.buttonsgroup = [[MUIGroup alloc] initWithObjects: 
+			(buttons[0] = [[MUIButton alloc] initWithLabel:@"connect to "SERIAL_CH34X_DEVICE_NAME]),
+			(buttons[1] = [[MUIButton alloc] initWithLabel:@"connect to "SERIAL_PL2303_DEVICE_NAME]),
+			(buttons[2] = [[MUIButton alloc] initWithLabel:@"connect to "SERIALNAME]),
+		nil]),
+	nil];
 
-	MUIWindow *w = [[[MUIWindow alloc] init] autorelease];
+	MUIWindow *w = [[MUIWindow alloc] init];
 	w.title = @"DeTerm";
 	w.rootObject = g;
 
@@ -47,7 +51,6 @@ int muiMain(int argc, char *argv[])
 	[w setOpen: NO];
 
 	[mapp cleanup];
-	[mapp release];
 
 	return 0;
 }

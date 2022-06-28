@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Filip "widelec-BB" Maryjanski, BlaBla group.
+ * Copyright (c) 2018-2022 Filip "widelec-BB" Maryjanski, BlaBla group.
  * All rights reserved.
  * Distributed under the terms of the MIT License.
  */
@@ -15,6 +15,16 @@
 #import "string.h"
 
 @implementation Application
+{
+	MCCPowerTerm *_termobj;
+	struct MsgPort *_rxPort;
+	struct IOExtSer *_ioExtSer;
+	OBSignalHandler *_sigHandler;
+	UBYTE _buffer[128];
+	ULONG _bufferPos;
+	UBYTE _readByte;
+	MUIGroup *_buttonsgroup;
+}
 
 @synthesize termobj = _termobj;
 @synthesize buttonsgroup = _buttonsgroup;
@@ -77,8 +87,6 @@
 		DeleteMsgPort(self->_rxPort);
 	}
 
-	[self->_sigHandler release];
-
 	LEAVE();
 }
 
@@ -92,7 +100,7 @@
 		self->_ioExtSer->io_ReadLen = self->_ioExtSer->io_WriteLen = 8;
 		self->_ioExtSer->io_SerFlags &= ~SERF_PARTY_ON;
 		self->_ioExtSer->io_SerFlags |= SERF_XDISABLED;
-		self->_ioExtSer->io_Baud = 115200;
+		self->_ioExtSer->io_Baud = 9600;
 
 		self->_ioExtSer->IOSer.io_Command = SDCMD_SETPARAMS;
 
@@ -121,8 +129,12 @@
 		return (IPTR)TRUE;
 	}
 	else
-		MUI_Request(NULL, NULL, 0, APP_NAME" Error", "*_OK", "Failed to open %s", (APTR)deviceName);
-
+	{
+		MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error during device opening")
+		   message: [OBString stringWithFormat: OBL(@"Failed to open %s", @"Quit game confirmation requester message"), deviceName]
+		   buttons: [OBArray arrayWithObjects: OBL(@"_OK", @"Error requester confirmation button"), nil]];
+		[req request];
+	}
 	LEAVE_ERROR("Failed to connect");
 	return (IPTR)FALSE;
 }

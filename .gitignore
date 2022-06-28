@@ -1,5 +1,9 @@
-Makefile
 *.d
 *.mo
 determ
 determ_DEBUG
+*.m.db.o
+*.m.db.d
+*.m.o
+*.m.d
+*.cd
