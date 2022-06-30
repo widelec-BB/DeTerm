@@ -22,6 +22,7 @@
 		self.author = @APP_AUTHOR;
 		self.copyright = @APP_COPYRIGHT;
 		self.applicationVersion = @APP_VERSION;
+		self.usedClasses = [OBArray arrayWithObjects: @"PowerTerm.mcc", nil];
 
 		self.description = OBL(@"Very simple DEbug TERMinal", @"Application Description");
 		self.base = @APP_TITLE;
@@ -42,12 +43,8 @@
 -(VOID) run
 {
 	TerminalWindow *tw = [[TerminalWindow alloc] init];
-
 	if (!tw)
-	{
-		// TODO: requester(?)
 		return;
-	}
 
 	[super instantiateWithWindows: tw, nil];
 
@@ -65,6 +62,8 @@
 {
 	[self removeObject: w];
 
+	[w killAllNotifies];
+
 	if (self.objects.count == 0)
 		[self quit];
 }
@@ -80,7 +79,17 @@
 
 	[self addObject: aboutbox];
 	aboutbox.open = YES;
-	[aboutbox notify: @selector(closeRequest) trigger: NO performSelector: @selector(closeWindow:) withTarget: self withObject: aboutbox];
+	[aboutbox notify: @selector(open) trigger: NO performSelector: @selector(closeWindow:) withTarget: self withObject: aboutbox];
+}
+
+-(VOID) openNewTerminalWindow
+{
+	TerminalWindow *tw = [[TerminalWindow alloc] init];
+	if (!tw)
+		return;
+
+	[self addObject: tw];
+	tw.open = YES;
 }
 
 @end

@@ -9,6 +9,4 @@
 
 @interface TerminalWindow : MUIWindow <SerialDeviceDelegate>
 
-+(VOID) cleanup;
-
 @end

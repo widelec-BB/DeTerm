@@ -11,5 +11,6 @@
 -(VOID) run;
 -(VOID) about;
 -(VOID) closeWindow: (MUIWindow *)w;
+-(VOID) openNewTerminalWindow;
 
 @end
