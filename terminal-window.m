@@ -247,9 +247,9 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	if (err != 0)
 	{
 		OBString *message = [SerialDevice errorMessage: err];
-		MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error during device opening")
+		MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error")
 		   message: message buttons: [OBArray arrayWithObjects: OBL(@"_OK", @"Error requester confirmation button"), nil]];
-		[req request];
+		[req requestWithWindow: self];
 		return;
 	}
 
@@ -263,20 +263,44 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	_serialDevice = nil;
 }
 
--(VOID) receiveFromSerialDevice: (OBData *)data
+-(VOID) receiveFromSerialDevice: (SerialDeviceError)err data: (OBData *)data
 {
-	ULONG characterEncoding = [[CharsetOptions objectAtIndex: _charsetCycle.active] unsignedLongValue];
-
-	DumpBinaryData((UBYTE *)data.bytes, data.length);
-
-	if (characterEncoding != MIBENUM_INVALID)
+	if (err == 0)
 	{
-		OBString *str = [OBString stringFromData: data encoding: characterEncoding];
-		DumpBinaryData((UBYTE *)str.cString, strlen(str.cString));
-		[_term writeUnicode: (APTR)str.cString length: str.length format: MUIV_PowerTerm_WriteUnicode_UTF8];
+		ULONG characterEncoding = [[CharsetOptions objectAtIndex: _charsetCycle.active] unsignedLongValue];
+
+		DumpBinaryData((UBYTE *)data.bytes, data.length);
+
+		if (characterEncoding != MIBENUM_INVALID)
+		{
+			OBString *str = [OBString stringFromData: data encoding: characterEncoding];
+			DumpBinaryData((UBYTE *)str.cString, strlen(str.cString));
+			[_term writeUnicode: (APTR)str.cString length: str.length format: MUIV_PowerTerm_WriteUnicode_UTF8];
+		}
+		else
+			[_term write: (APTR)data.bytes length: data.length];
 	}
 	else
-		[_term write: (APTR)data.bytes length: data.length];
+		[self displayErrorRequester: err];
+}
+
+-(VOID) writeResultFromSerialDevice: (SerialDeviceError)err data: (OBData *)data
+{
+	if (err == 0)
+	{
+
+	}
+	else
+		[self displayErrorRequester: err];
+}
+
+-(VOID) displayErrorRequester: (SerialDeviceError)err
+{
+	MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Serial Device Error", @"Requester title for serial device error") message: [SerialDevice errorMessage: err]
+	   buttons: [OBArray arrayWithObjects: OBL(@"_Ignore", @"Ignore error button"), OBL(@"_Disconnect", @"Disconnect after error button"), nil]];
+
+	if ([req requestWithWindow: self] == 0)
+		[self disconnect];
 }
 
 -(VOID) handleNewTermInput

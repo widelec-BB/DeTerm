@@ -18,6 +18,7 @@
 	struct IOExtSer *_ioExtSerRead, *_ioExtSerWrite;
 
 	UBYTE _buffer[1024];
+	OBData *_writeData;
 }
 
 +(OBArray *) availableDevices
@@ -204,13 +205,24 @@
 	return 0;
 }
 
--(SerialDeviceError) write: (OBData *)data
+-(VOID) write: (OBData *)data
 {
+	WaitIO((struct IORequest *)_ioExtSerWrite);
+
 	_ioExtSerWrite->IOSer.io_Length = data.length;
 	_ioExtSerWrite->IOSer.io_Data = (APTR)data.bytes;
 	_ioExtSerWrite->IOSer.io_Command = CMD_WRITE;
+	_ioExtSerWrite->IOSer.io_Flags |= IOF_QUICK;
 
-	return DoIO((struct IORequest *)_ioExtSerWrite);
+	BeginIO((struct IORequest *)_ioExtSerWrite);
+
+	if (_ioExtSerWrite->IOSer.io_Flags & IOF_QUICK)
+	{
+		if (self.delegate)
+			[self.delegate writeResultFromSerialDevice: _ioExtSerWrite->IOSer.io_Error data: data];
+	}
+	else
+		_writeData = data;
 }
 
 -(VOID) performWithSignalHandler: (OBSignalHandler *)handler
@@ -220,29 +232,47 @@
 	{
 		if (msg == (struct Message *)_ioExtSerRead)
 		{
+			if (_ioExtSerRead->IOSer.io_Command != CMD_READ)
+				return;
+
 			if (self.delegate == nil)
 				return;
 
-			if(_ioExtSerRead->IOSer.io_Error == 0 && _ioExtSerRead->IOSer.io_Command == CMD_READ && _ioExtSerRead->IOSer.io_Actual == 1)
+			if (_ioExtSerRead->IOSer.io_Error != 0)
 			{
+				[self.delegate receiveFromSerialDevice: _ioExtSerRead->IOSer.io_Error data: nil];
+				return;
+			}
+
+			if(_ioExtSerRead->IOSer.io_Actual > 0)
+			{
+				ULONG alreadyReceived = _ioExtSerRead->IOSer.io_Actual;
+
 				_ioExtSerRead->IOSer.io_Command = SDCMD_QUERY;
 				if (DoIO((struct IORequest *)_ioExtSerRead) == 0 && _ioExtSerRead->IOSer.io_Actual > 0)
 				{
-					OBMutableData *data = [OBMutableData dataWithCapacity: _ioExtSerRead->IOSer.io_Actual + 1];
+					SerialDeviceError err;
+					OBMutableData *data = [OBMutableData dataWithCapacity: _ioExtSerRead->IOSer.io_Actual + alreadyReceived];
 
-					[data appendBytes: _buffer length: 1];
+					[data appendBytes: _buffer length: alreadyReceived];
 
-					if ([self readInto: data length: _ioExtSerRead->IOSer.io_Actual] == 0)
-						[self.delegate receiveFromSerialDevice: data];
+					err = [self readInto: data length: _ioExtSerRead->IOSer.io_Actual];
+					[self.delegate receiveFromSerialDevice: err data: data];
 				}
 				else
 				{
 					OBData *data = [OBData dataWithBytes: _buffer length: 1];
-					[self.delegate receiveFromSerialDevice: data];
+					[self.delegate receiveFromSerialDevice: 0 data: data];
 				}
 			}
 
 			[self enqueueRead];
+		}
+		else if(msg == (struct Message *)_ioExtSerWrite)
+		{
+			if (self.delegate)
+				[self.delegate writeResultFromSerialDevice: _ioExtSerRead->IOSer.io_Error data: _writeData];
+			_writeData = nil;
 		}
 	}
 }

@@ -1,8 +1,11 @@
 #import <ob/OBFramework.h>
 
+typedef BYTE SerialDeviceError;
+
 @protocol SerialDeviceDelegate
 
--(VOID) receiveFromSerialDevice: (OBData *)data;
+-(VOID) receiveFromSerialDevice: (SerialDeviceError)err data: (OBData *)data;
+-(VOID) writeResultFromSerialDevice: (SerialDeviceError)err data: (OBData *)data;
 
 @end
 
@@ -12,8 +15,6 @@ typedef enum
 	ParityEven,
 	ParityOdd,
 } Parity;
-
-typedef BYTE SerialDeviceError;
 
 @interface SerialDevice : OBObject <OBSignalHandlerDelegate>
 
@@ -27,6 +28,6 @@ typedef BYTE SerialDeviceError;
 -(id) init: (OBString *)name unit: (ULONG)unit delegate: (id <SerialDeviceDelegate>)d;
 
 -(SerialDeviceError) openWithBaudRate: (ULONG)bd dataBits: (UBYTE)db stopBits: (UBYTE)sb parity: (Parity)p;
--(SerialDeviceError) write: (OBData *)data;
+-(VOID) write: (OBData *)data;
 
 @end
