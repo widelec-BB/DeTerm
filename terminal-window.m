@@ -25,6 +25,7 @@ typedef enum
 {
 	MUIString *_unitString;
 	MUICycle *_devicesCycle, *_baudRateCycle, *_dataBitsCycle, *_parityCycle, *_stopBitsCycle, *_charsetCycle;
+	MUICheckmark *_xFlowCheckmark, *_eofModeCheckmark;
 	MCCPowerTerm *_term;
 
 	SerialDevice *_serialDevice;
@@ -140,6 +141,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			LONG i;
 			MUIGroup *deviceConfigGroup;
 			MUIButton *connectButton;
+			MUICheckmark *xFlowCheckmark, *eofModeCheckmark;
 			MUIText *labels[6];
 
 			_term = termobj;
@@ -147,22 +149,30 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_term.outEnable = YES;
 			_term.uTFEnable = YES;
 
-			deviceConfigGroup = [MUIGroup groupWithColumns: 2 objects:
-				labels[0] = [MUIText textWithContents: OBL(@"Device:", @"Label for cycle with available devices")],
-				[MUIGroup horizontalGroupWithObjects:
-					_devicesCycle = [MUICycle cycleWithEntries: [SerialDevice availableDevices]],
-					_unitString = [MUIString stringWithContents: @"0"],
+			deviceConfigGroup = [MUIGroup groupWithObjects:
+				[MUIGroup groupWithColumns: 2 objects:
+					labels[0] = [MUIText textWithContents: OBL(@"Device:", @"Label for cycle with available devices")],
+					[MUIGroup horizontalGroupWithObjects:
+						_devicesCycle = [MUICycle cycleWithEntries: [SerialDevice availableDevices]],
+						_unitString = [MUIString stringWithContents: @"0"],
+					nil],
+					labels[1] = [MUIText textWithContents: OBL(@"Baud Rate:", @"Label for cycle with baud rate selection")],
+					_baudRateCycle = [MUICycle cycleWithEntries: BaudRateOptions],
+					labels[2] = [MUIText textWithContents: OBL(@"Data Bits:", @"Label for cycle with data bits selection")],
+					_dataBitsCycle = [MUICycle cycleWithEntries: DataBitsOptions],
+					labels[3] = [MUIText textWithContents: OBL(@"Parity:", @"Label for cycle with parity mode selection")],
+					_parityCycle = [MUICycle cycleWithEntries: ParityOptionsLabels],
+					labels[4] = [MUIText textWithContents: OBL(@"Stop Bits:", @"Label for cycle with number of stop bits selection")],
+					_stopBitsCycle = [MUICycle cycleWithEntries: StopBitsOptions],
+					labels[5] = [MUIText textWithContents: OBL(@"Text Encoding:", @"Label for cycle to select received text encoding")],
+					_charsetCycle = [MUICycle cycleWithEntries: CharsetOptionsLabels],
 				nil],
-				labels[1] = [MUIText textWithContents: OBL(@"Baud Rate:", @"Label for cycle with baud rate selection")],
-				_baudRateCycle = [MUICycle cycleWithEntries: BaudRateOptions],
-				labels[2] = [MUIText textWithContents: OBL(@"Data Bits:", @"Label for cycle with data bits selection")],
-				_dataBitsCycle = [MUICycle cycleWithEntries: DataBitsOptions],
-				labels[3] = [MUIText textWithContents: OBL(@"Parity:", @"Label for cycle with parity mode selection")],
-				_parityCycle = [MUICycle cycleWithEntries: ParityOptionsLabels],
-				labels[4] = [MUIText textWithContents: OBL(@"Stop Bits:", @"Label for cycle with number of stop bits selection")],
-				_stopBitsCycle = [MUICycle cycleWithEntries: StopBitsOptions],
-				labels[5] = [MUIText textWithContents: OBL(@"Text Encoding:", @"Label for cycle to select received text encoding")],
-				_charsetCycle = [MUICycle cycleWithEntries: CharsetOptionsLabels],
+				[MUIGroup horizontalGroupWithObjects:
+					[MUIRectangle rectangle],
+					[MUICheckmark checkmarkWithLabel: OBL(@"X-ON/X-OFF Flow Control", @"Label for checkmark activating flow control") checkmark: &xFlowCheckmark],
+					[MUICheckmark checkmarkWithLabel: OBL(@"EOF Mode", @"Label for checkmark activating EOF mode") checkmark: &eofModeCheckmark],
+					[MUIRectangle rectangle],
+				nil],
 			nil];
 			deviceConfigGroup.frame = MUIV_Frame_Group;
 			deviceConfigGroup.frameTitle = OBL(@"Connection", @"Connection configuration group title");
@@ -199,6 +209,9 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 			_unitString.integer = 0;
 
+			_xFlowCheckmark = xFlowCheckmark;
+			_eofModeCheckmark = eofModeCheckmark;
+
 			[connectButton notify: @selector(pressed) trigger: NO performSelector: @selector(connect) withTarget: self];
 			[_term notify: @selector(outLen) performSelector: @selector(handleNewTermInput) withTarget: self];
 
@@ -233,6 +246,8 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	ULONG baudRate = [[BaudRateOptions objectAtIndex: _baudRateCycle.active] unsignedIntValue];
 	UBYTE dataBits = [[DataBitsOptions objectAtIndex: _dataBitsCycle.active] unsignedIntValue];
 	UBYTE stopBits = [[StopBitsOptions objectAtIndex: _stopBitsCycle.active] unsignedIntValue];
+	BOOL xFlow = _xFlowCheckmark.selected;
+	BOOL eofMode = _eofModeCheckmark.selected;
 	Parity parity = (Parity)_parityCycle.active;
 	SerialDeviceError err;
 
@@ -242,7 +257,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	if (!_serialDevice)
 		return;
 
-	err = [_serialDevice openWithBaudRate: baudRate dataBits: dataBits stopBits: stopBits parity: parity];
+	err = [_serialDevice openWithBaudRate: baudRate dataBits: dataBits stopBits: stopBits parity: parity xFlow: xFlow eofMode: eofMode];
 
 	if (err != 0)
 	{

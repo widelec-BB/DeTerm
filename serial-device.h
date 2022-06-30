@@ -27,7 +27,7 @@ typedef enum
 -(id) init: (OBString *)name unit: (ULONG)unit;
 -(id) init: (OBString *)name unit: (ULONG)unit delegate: (id <SerialDeviceDelegate>)d;
 
--(SerialDeviceError) openWithBaudRate: (ULONG)bd dataBits: (UBYTE)db stopBits: (UBYTE)sb parity: (Parity)p;
+-(SerialDeviceError) openWithBaudRate: (ULONG)bd dataBits: (UBYTE)db stopBits: (UBYTE)sb parity: (Parity)p xFlow: (BOOL)xFlow eofMode: (BOOL)eofMode;
 -(VOID) write: (OBData *)data;
 
 @end

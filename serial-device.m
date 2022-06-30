@@ -127,7 +127,7 @@
 		[self enqueueRead];
 }
 
--(SerialDeviceError) openWithBaudRate: (ULONG)bd dataBits: (UBYTE)db stopBits: (UBYTE)sb parity: (Parity)p
+-(SerialDeviceError) openWithBaudRate: (ULONG)bd dataBits: (UBYTE)db stopBits: (UBYTE)sb parity: (Parity)p xFlow: (BOOL)xFlow eofMode: (BOOL)eofMode
 {
 	SerialDeviceError err;
 	if(OpenDevice(_deviceName.cString, 0L, (struct IORequest *)_ioExtSerRead, 0) == 0)
@@ -149,7 +149,16 @@
 				_ioExtSerRead->io_SerFlags |= ~SERF_PARTY_ODD;
 			break;
 		}
-		_ioExtSerRead->io_SerFlags |= SERF_XDISABLED;
+
+		if (xFlow)
+			_ioExtSerRead->io_SerFlags &= ~SERF_XDISABLED;
+		else
+			_ioExtSerRead->io_SerFlags |= SERF_XDISABLED;
+
+		if (eofMode)
+			_ioExtSerRead->io_SerFlags |= SERF_EOFMODE;
+		else
+			_ioExtSerRead->io_SerFlags &= ~SERF_EOFMODE;
 
 		_ioExtSerRead->IOSer.io_Command = SDCMD_SETPARAMS;
 		if ((err = DoIO((struct IORequest *)_ioExtSerRead)) == 0)
