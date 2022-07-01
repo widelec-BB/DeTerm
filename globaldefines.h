@@ -23,14 +23,14 @@
 #define MACRO_TO_STRING(x) TO_STRING(x)
 
 #define APP_TITLE          "DeTerm"
-#define APP_AUTHOR         "Filip \"widelec\" Maryjanski"
+#define APP_AUTHOR         "Filip \"widelec-BB\" Maryjanski"
 
 #define APP_CYEARS         "2018 - "__YEAR__
 #define APP_VER_MAJOR      1
 #define APP_VER_MINOR      1
 #define APP_VER_NO         MACRO_TO_STRING(APP_VER_MAJOR)"."MACRO_TO_STRING(APP_VER_MINOR)
-#define APP_COPYRIGHT      "(c) " APP_CYEARS " " APP_AUTHOR
-#define APP_VERSION        "$VER: " APP_TITLE " " APP_VER_NO " " __APP_DATE__ " " APP_COPYRIGHT
+#define APP_COPYRIGHT      APP_CYEARS " " APP_AUTHOR
+#define APP_VERSION        "$VER: " APP_TITLE " " APP_VER_NO " (" __APP_DATE__ ") (c) " APP_COPYRIGHT
 
 #define APP_SCREEN_TITLE   APP_TITLE " " APP_VER_NO " " __APP_DATE__
 

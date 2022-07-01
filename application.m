@@ -24,7 +24,7 @@
 		self.applicationVersion = @APP_VERSION;
 		self.usedClasses = [OBArray arrayWithObjects: @"PowerTerm.mcc", nil];
 
-		self.description = OBL(@"Very simple DEbug TERMinal", @"Application Description");
+		self.description = OBL(@"Serial Port Terminal", @"Application Description");
 		self.base = @APP_TITLE;
 		self.diskObject = GetDiskObject("PROGDIR:" APP_TITLE);
 

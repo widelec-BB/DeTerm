@@ -1,16 +1,25 @@
-Short:          Simple terminal for debug
+Short:          Serial port terminal
 Author:         Filip "widelec" Maryjañski
 Type:           comm/term
-Version:        1.0
+Version:        1.1
 Architecture:   ppc-morphos
 
 
-This is a very simple terminal program for receiving
-debug output via serial (with or without usb->rs232
-converter).
+This is a terminal program for communicating via serial port.
+
 
 What do you need:
-----------------
+-----------------
 
- - any computer with MorphOS 3.11 running on.
- 
+ - any computer with MorphOS 3.17 running on.
+
+
+Changes:
+-----------------
+
+Version 1.1 (01.07.2022):
+ - added bidirectional communication;
+ - added connection configuration options;
+ - added terminal configuration options.
+
+Version 1.0 (17.07.2018): Initial release

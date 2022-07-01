@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2018-2022 Filip "widelec-BB" Maryjanski, BlaBla group.
+ * All rights reserved.
+ * Distributed under the terms of the MIT License.
+ */
+
 #import <proto/exec.h>
 #import <devices/serial.h>
 #import <clib/alib_protos.h>
