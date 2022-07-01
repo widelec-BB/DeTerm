@@ -247,6 +247,8 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_xFlowCheckmark = xFlowCheckmark;
 			_eofModeCheckmark = eofModeCheckmark;
 
+			[self loadConfiguration: ((Application *)self.applicationObject).lastConfiguration];
+
 			[connectButton notify: @selector(pressed) trigger: NO performSelector: @selector(connect) withTarget: self];
 			[_term notify: @selector(outLen) performSelector: @selector(handleNewTermInput) withTarget: self];
 
@@ -305,6 +307,8 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 	_termResetMenuitem.enabled = YES;
 	_disconnectMenuitem.enabled = YES;
+
+	[self saveCurrentConfiguration];
 }
 
 -(VOID) disconnect
@@ -429,8 +433,6 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 		_term.emulation = mode;
 		_termEmulationMenuitems[mode].checked = YES;
-
-		return;
 	}
 
 	switch (menuAction)
@@ -486,6 +488,8 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_term.lFasCRLF = _LFAsCRLFMenuitem.checked;
 		break;
 	}
+
+	[self saveCurrentConfiguration];
 }
 
 -(VOID) writeToTerminal: (OBData *)data encoding: (ULONG)characterEncoding
@@ -497,6 +501,70 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	}
 	else
 		[_term write: (APTR)data.bytes length: data.length];
+}
+
+-(VOID) saveCurrentConfiguration
+{
+	Application *app = (Application *)self.applicationObject;
+
+	app.lastConfiguration = [OBDictionary dictionaryWithObjectsAndKeys:
+		[_devicesCycle.entries objectAtIndex: _devicesCycle.active], @"device-name",
+		[OBNumber numberWithUnsignedLong: _unitString.integer], @"device-unit",
+		[BaudRateOptions objectAtIndex: _baudRateCycle.active], @"baud-rate",
+		[DataBitsOptions objectAtIndex: _dataBitsCycle.active], @"data-bits",
+		[StopBitsOptions objectAtIndex: _stopBitsCycle.active], @"stop-bits",
+		[OBNumber numberWithBool: _xFlowCheckmark.selected], @"xon-xoff",
+		[OBNumber numberWithBool: _eofModeCheckmark.selected], @"eof-mode",
+		[OBNumber numberWithUnsignedLong: _localEchoMode], @"echo-mode",
+		[OBNumber numberWithUnsignedLong: _sendMode], @"send-mode",
+		[OBNumber numberWithUnsignedLong: _term.emulation], @"terminal-type",
+		[OBNumber numberWithBool: _CRAsCRLFMenuitem.checked], @"cr-as-crlf",
+		[OBNumber numberWithBool: _LFAsCRLFMenuitem.checked], @"lf-as-crlf",
+	nil];
+}
+
+-(VOID) loadConfiguration: (OBDictionary *)config
+{
+	ULONG i;
+
+	if (config == nil)
+		return;
+
+	i = [_devicesCycle.entries indexOfObject: [config objectForKey: @"device-name"]];
+	if (i != OBNotFound)
+		_devicesCycle.active = i;
+
+	_unitString.integer = [[config objectForKey: @"device-unit"] unsignedLongValue];
+
+	i = [_baudRateCycle.entries indexOfObject: [config objectForKey: @"baud-rate"]];
+	if (i != OBNotFound)
+		_baudRateCycle.active = i;
+
+	i = [_dataBitsCycle.entries indexOfObject: [config objectForKey: @"data-bits"]];
+	if (i != OBNotFound)
+		_dataBitsCycle.active = i;
+
+	i = [_stopBitsCycle.entries indexOfObject: [config objectForKey: @"stop-bits"]];
+	if (i != OBNotFound)
+		_stopBitsCycle.active = i;
+
+	_xFlowCheckmark.selected = [[config objectForKey: @"xon-xoff"] boolValue];
+	_eofModeCheckmark.selected = [[config objectForKey: @"eof-mode"] boolValue];
+
+	_localEchoMode = [[config objectForKey: @"echo-mode"] unsignedLongValue];
+	for (i = 0; i < sizeof(_localEchoMenuitems) / sizeof(*_localEchoMenuitems); i++)
+		_localEchoMenuitems[i].checked = i + MenuLocalEchoOff == _localEchoMode;
+
+	_sendMode = [[config objectForKey: @"send-mode"] unsignedLongValue];
+	for (i = 0; i < sizeof(_sendModeMenuitems) / sizeof(*_sendModeMenuitems); i++)
+		_sendModeMenuitems[i].checked = i + MenuSendModeInteractive == _sendMode;
+
+	_term.emulation = [[config objectForKey: @"terminal-type"] unsignedLongValue];
+	for (i = 0; i < sizeof(_termEmulationMenuitems) / sizeof(*_termEmulationMenuitems); i++)
+		_termEmulationMenuitems[i].checked = i == _term.emulation;
+
+	_CRAsCRLFMenuitem.checked = [[config objectForKey: @"cr-as-crlf"] boolValue];
+	_LFAsCRLFMenuitem.checked = [[config objectForKey: @"lf-as-crlf"] boolValue];
 }
 
 @end

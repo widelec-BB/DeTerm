@@ -8,6 +8,8 @@
 
 @interface Application : MUIApplication
 
+@property (nonatomic) OBDictionary *lastConfiguration;
+
 -(VOID) run;
 -(VOID) about;
 -(VOID) closeWindow: (MUIWindow *)w;

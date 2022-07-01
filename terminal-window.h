@@ -9,4 +9,6 @@
 
 @interface TerminalWindow : MUIWindow <SerialDeviceDelegate>
 
+-(VOID) loadConfiguration: (OBDictionary *)config;
+
 @end

@@ -12,6 +12,8 @@
 
 @implementation Application
 
+@synthesize lastConfiguration;
+
 -(id) init
 {
 	if ((self = [super init]))
@@ -50,6 +52,7 @@
 
 	[super loadENV];
 
+	[tw loadConfiguration: self.lastConfiguration];
 	tw.open = YES;
 
 	[super run];
@@ -90,6 +93,27 @@
 
 	[self addObject: tw];
 	tw.open = YES;
+}
+
+-(IPTR) export: (MUIDataspace *)dataspace
+{
+	OBJSONSerializer *serializer = [OBJSONSerializer serializer];
+	OBData *data = [serializer serializeDictionary: self.lastConfiguration error: NULL];
+
+	[dataspace setData: data forID: 10];
+
+	return [super export: dataspace];
+}
+
+-(IPTR) import: (MUIDataspace *)dataspace
+{
+	OBJSONDeserializer *deserializer = [OBJSONDeserializer deserializer];
+	OBDictionary *config = [deserializer deserializeAsDictionary: [dataspace dataForID: 10] error: NULL];
+
+	if (config && [config isKindOfClass: [OBDictionary class]])
+		self.lastConfiguration = config;
+
+	return [super import: dataspace];
 }
 
 @end
