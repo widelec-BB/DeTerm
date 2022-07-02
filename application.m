@@ -51,8 +51,8 @@
 	[super instantiateWithWindows: tw, nil];
 
 	[super loadENV];
-
 	[tw loadConfiguration: self.lastConfiguration];
+
 	tw.open = YES;
 
 	[super run];

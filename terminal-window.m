@@ -7,6 +7,7 @@
 #import <mui/PowerTerm_mcc.h>
 #import <proto/charsets.h>
 #import <proto/intuition.h>
+#import <proto/muimaster.h>
 #import <clib/alib_protos.h>
 #import <ob/OBFramework.h>
 
@@ -24,6 +25,8 @@ typedef enum
 typedef enum
 {
 	MenuNewWindow = 0,
+	MenuLoadConfigFrom,
+	MenuSaveCurrentConfigAs,
 	MenuTermReset,
 	MenuDisconnect,
 	MenuAbout,
@@ -397,6 +400,9 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		[[MUIMenu alloc] initWithTitle: @APP_TITLE objects:
 			[MUIMenuitem itemWithTitle: OBL(@"Open New Terminal Window...", @"Menu entry label") shortcut: @"n" userData: MenuNewWindow],
 			[MUIMenuitem barItem],
+			[MUIMenuitem itemWithTitle: OBL(@"Load Configuration From...", @"Menu entry label") shortcut: nil userData: MenuLoadConfigFrom],
+			[MUIMenuitem itemWithTitle: OBL(@"Save Current Configuration As...", @"Menu entry label") shortcut: nil userData: MenuSaveCurrentConfigAs],
+			[MUIMenuitem barItem],
 			_termResetMenuitem = [MUIMenuitem itemWithTitle: OBL(@"Reset Terminal", @"Menu entry label") shortcut: @"z" userData: MenuTermReset],
 			_disconnectMenuitem = [MUIMenuitem itemWithTitle: OBL(@"Disconnect", @"Menu entry label") shortcut: @"c" userData: MenuDisconnect],
 			[MUIMenuitem barItem],
@@ -448,6 +454,14 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	{
 		case MenuNewWindow:
 			[(Application *)self.applicationObject openNewTerminalWindow];
+		break;
+
+		case MenuLoadConfigFrom:
+			[self loadConfigurationFromFile];
+		break;
+
+		case MenuSaveCurrentConfigAs:
+			[self saveCurrentConfigurationToFile];
 		break;
 
 		case MenuTermReset:
@@ -506,15 +520,14 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		[_term write: (APTR)data.bytes length: data.length];
 }
 
--(VOID) saveCurrentConfiguration
+-(OBDictionary *) currentConfiguration
 {
-	Application *app = (Application *)self.applicationObject;
-
-	app.lastConfiguration = [OBDictionary dictionaryWithObjectsAndKeys:
+	return [OBDictionary dictionaryWithObjectsAndKeys:
 		[_devicesCycle.entries objectAtIndex: _devicesCycle.active], @"device-name",
 		[OBNumber numberWithUnsignedLong: _unitString.integer], @"device-unit",
 		[BaudRateOptions objectAtIndex: _baudRateCycle.active], @"baud-rate",
 		[DataBitsOptions objectAtIndex: _dataBitsCycle.active], @"data-bits",
+		[OBNumber numberWithUnsignedLong: _parityCycle.active], @"parity",
 		[StopBitsOptions objectAtIndex: _stopBitsCycle.active], @"stop-bits",
 		[OBNumber numberWithBool: _xFlowCheckmark.selected], @"xon-xoff",
 		[OBNumber numberWithBool: _eofModeCheckmark.selected], @"eof-mode",
@@ -523,7 +536,15 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		[OBNumber numberWithUnsignedLong: _term.emulation], @"terminal-type",
 		[OBNumber numberWithBool: _CRAsCRLFMenuitem.checked], @"cr-as-crlf",
 		[OBNumber numberWithBool: _LFAsCRLFMenuitem.checked], @"lf-as-crlf",
+		[CharsetOptions objectAtIndex: _charsetCycle.active], @"charset-mibenum",
 	nil];
+}
+
+-(VOID) saveCurrentConfiguration
+{
+	Application *app = (Application *)self.applicationObject;
+
+	app.lastConfiguration = self.currentConfiguration;
 }
 
 -(VOID) loadConfiguration: (OBDictionary *)config
@@ -547,6 +568,10 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	if (i != OBNotFound)
 		_dataBitsCycle.active = i;
 
+	i = [[config objectForKey: @"parity"] unsignedLongValue];
+	if (_parityCycle.entries.count > i)
+		_parityCycle.active = i;
+
 	i = [_stopBitsCycle.entries indexOfObject: [config objectForKey: @"stop-bits"]];
 	if (i != OBNotFound)
 		_stopBitsCycle.active = i;
@@ -560,6 +585,121 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 	_CRAsCRLFMenuitem.checked = [[config objectForKey: @"cr-as-crlf"] boolValue];
 	_LFAsCRLFMenuitem.checked = [[config objectForKey: @"lf-as-crlf"] boolValue];
+
+	i = [CharsetOptions indexOfObject: [config objectForKey: @"charset-mibenum"]];
+	if (i != OBNotFound)
+		_charsetCycle.active = i;
+}
+
+-(VOID) saveCurrentConfigurationToFile
+{
+	OBJSONSerializer *serializer = [OBJSONSerializer serializer];
+	OBData *data = [serializer serializeDictionary: self.currentConfiguration error: NULL];
+	struct FileRequester *fReq = MUI_AllocAslRequestTags(ASL_FileRequest, TAG_END);
+	BOOL fileSelected;
+
+	if (!fReq)
+		return;
+
+	self.applicationObject.sleep = YES;
+
+	fileSelected = MUI_AslRequestTags(fReq,
+		ASLFR_Window, (IPTR)self.window,
+		ASLFR_DoSaveMode, TRUE,
+		ASLFR_PrivateIDCMP, TRUE,
+		ASLFR_RejectIcons, TRUE,
+		ASLFR_PopToFront, TRUE,
+		ASLFR_Activate, TRUE,
+		ASLFR_TitleText, (IPTR)[OBL(@"Save Current Configuration Profile As", @"ASL requester for saving configuration profile title") cString],
+		ASLFR_PositiveText, (IPTR)[OBL(@"Save", @"ASL requester for saving configuration profile positive text") cString],
+		ASLFR_InitialPattern, (IPTR)"#?",
+		ASLFR_DoPatterns, TRUE,
+	TAG_END);
+
+	if (fileSelected)
+	{
+		OBString *drawer = [OBString stringWithCString: fReq->fr_Drawer encoding: MIBENUM_SYSTEM];
+		OBString *file = [OBString stringWithCString: fReq->fr_File encoding: MIBENUM_SYSTEM];
+
+		if (![file hasSuffix: @".determ"])
+			file = [file stringByAppendingString: @".determ"];
+
+		if (![data writeToFile: [drawer stringByAddingPathComponent: file]])
+		{
+			MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error")
+			  message: OBL(@"There was an error during file save operation.", @"File save error message")
+			  buttons: [OBArray arrayWithObjects: OBL(@"_OK", @"Error requester confirmation button"), nil]];
+			[req requestWithWindow: self];
+		}
+	}
+
+	self.applicationObject.sleep = NO;
+	MUI_FreeAslRequest(fReq);
+}
+
+-(VOID) loadConfigurationFromFile
+{
+	struct FileRequester *fReq = MUI_AllocAslRequestTags(ASL_FileRequest, TAG_END);
+	BOOL fileSelected;
+
+	if (!fReq)
+		return;
+
+	self.applicationObject.sleep = YES;
+
+	fileSelected = MUI_AslRequestTags(fReq,
+		ASLFR_Window, (IPTR)self.window,
+		ASLFR_DoSaveMode, FALSE,
+		ASLFR_PrivateIDCMP, TRUE,
+		ASLFR_RejectIcons, TRUE,
+		ASLFR_PopToFront, TRUE,
+		ASLFR_Activate, TRUE,
+		ASLFR_TitleText, (IPTR)[OBL(@"Load Configuration Profile From", @"ASL requester for loading configuration profile title") cString],
+		ASLFR_PositiveText, (IPTR)[OBL(@"Load", @"ASL requester for loading configuration profile positive text") cString],
+		ASLFR_InitialPattern, (IPTR)"#?",
+		ASLFR_DoPatterns, TRUE,
+	TAG_END);
+
+	if (fileSelected)
+	{
+		OBString *drawer = [OBString stringWithCString: fReq->fr_Drawer encoding: MIBENUM_SYSTEM];
+		OBString *file = [OBString stringWithCString: fReq->fr_File encoding: MIBENUM_SYSTEM];
+
+		[self parseConfigurationFile: [drawer stringByAddingPathComponent: file]];
+	}
+
+	self.applicationObject.sleep = NO;
+	MUI_FreeAslRequest(fReq);
+}
+
+-(VOID) parseConfigurationFile: (OBString *)path
+{
+	OBData *data = [OBData dataWithContentsOfFile: path];
+
+	if (data)
+	{
+		OBJSONDeserializer *deserializer = [OBJSONDeserializer deserializer];
+		OBDictionary *config = [deserializer deserializeAsDictionary: data error: NULL];
+
+		if (config && [config isKindOfClass: [OBDictionary class]])
+		{
+			[self loadConfiguration: config];
+		}
+		else
+		{
+			MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error")
+			  message: OBL(@"Invalid file format.", @"File format error message")
+			  buttons: [OBArray arrayWithObjects: OBL(@"_OK", @"Error requester confirmation button"), nil]];
+			[req requestWithWindow: self];
+		}
+	}
+	else
+	{
+		MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error")
+		  message: OBL(@"File not found.", @"File load error message")
+		  buttons: [OBArray arrayWithObjects: OBL(@"_OK", @"Error requester confirmation button"), nil]];
+		[req requestWithWindow: self];
+	}
 }
 
 -(VOID) setLocalEchoMode: (ULONG)value

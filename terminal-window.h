@@ -11,5 +11,6 @@
 
 -(VOID) loadConfiguration: (OBDictionary *)config;
 -(VOID) disconnect;
+-(VOID) parseConfigurationFile: (OBString *)path;
 
 @end
