@@ -57,6 +57,12 @@
 
 	[super run];
 
+	for (id w in self)
+	{
+		if ([w isKindOfClass: [TerminalWindow class]])
+			[w disconnect];
+	}
+
 	[super saveENV];
 	[super saveENVARC];
 }
