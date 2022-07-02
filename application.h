@@ -9,6 +9,7 @@
 @interface Application : MUIApplication
 
 @property (nonatomic) OBDictionary *lastConfiguration;
+@property (nonatomic, readonly) OBString *executablePath;
 
 -(VOID) run;
 -(VOID) about;

@@ -4,12 +4,16 @@
  * Distributed under the terms of the MIT License.
  */
 
-#import <mui/PowerTerm_mcc.h>
+#import <proto/exec.h>
 #import <proto/charsets.h>
 #import <proto/intuition.h>
 #import <proto/muimaster.h>
+#import <proto/icon.h>
+#import <proto/dos.h>
+#import <workbench/icon.h>
 #import <clib/alib_protos.h>
-#import <ob/OBFramework.h>
+#import <mui/muiFramework.h>
+#import <mui/PowerTerm_mcc.h>
 
 #import <string.h>
 #import "globaldefines.h"
@@ -307,12 +311,13 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	Parity parity = (Parity)_parityCycle.active;
 	SerialDeviceError err;
 
-	_serialDevice = [[SerialDevice alloc] init: deviceName unit: unit delegate: self];
+	_serialDevice = [[SerialDevice alloc] init: deviceName unit: unit];
 	if (!_serialDevice)
 		return;
 
-	err = [_serialDevice openWithBaudRate: baudRate dataBits: dataBits stopBits: stopBits parity: parity xFlow: xFlow eofMode: eofMode];
+	_serialDevice.delegate = self;
 
+	err = [_serialDevice openWithBaudRate: baudRate dataBits: dataBits stopBits: stopBits parity: parity xFlow: xFlow eofMode: eofMode];
 	if (err != 0)
 	{
 		OBString *message = [SerialDevice errorMessage: err];
@@ -618,18 +623,51 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 	if (fileSelected)
 	{
+		struct DiskObject *icon = self.applicationObject.diskObject;
 		OBString *drawer = [OBString stringWithCString: fReq->fr_Drawer encoding: MIBENUM_SYSTEM];
 		OBString *file = [OBString stringWithCString: fReq->fr_File encoding: MIBENUM_SYSTEM];
+		OBString *path;
 
 		if (![file hasSuffix: @".determ"])
 			file = [file stringByAppendingString: @".determ"];
 
-		if (![data writeToFile: [drawer stringByAddingPathComponent: file]])
+		path = [drawer stringByAddingPathComponent: file];
+
+		if (![data writeToFile: path])
 		{
 			MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error")
 			  message: OBL(@"There was an error during file save operation.", @"File save error message")
 			  buttons: [OBArray arrayWithObjects: OBL(@"_OK", @"Error requester confirmation button"), nil]];
 			[req requestWithWindow: self];
+		}
+
+		if (icon)
+		{
+			UBYTE oldType = icon->do_Type;
+			STRPTR *oldToolTypes = icon->do_ToolTypes;
+			STRPTR oldDefaultTool = icon->do_DefaultTool;
+			STRPTR newToolTypes[] = {
+				"(CONNECT)",
+				NULL,
+			};
+
+			icon->do_Type = WBPROJECT;
+			icon->do_ToolTypes = newToolTypes;
+			icon->do_DefaultTool = (STRPTR)[((Application *)self.applicationObject).executablePath nativeCString];
+
+			if (!PutIconTags((CONST STRPTR)path.nativeCString, icon,
+				ICONPUTA_PutDefaultType, WBPROJECT,
+			TAG_END))
+			{
+				MUIRequest *req = [MUIRequest requestWithTitle: OBL(@"Error", @"Requester title for error")
+				  message: OBL(@"There was an error during icon file save operation.", @"File save error message")
+				  buttons: [OBArray arrayWithObjects: OBL(@"_OK", @"Error requester confirmation button"), nil]];
+				[req requestWithWindow: self];
+			}
+
+			icon->do_ToolTypes = oldToolTypes;
+			icon->do_DefaultTool = oldDefaultTool;
+			icon->do_Type = oldType;
 		}
 	}
 
@@ -683,7 +721,16 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 		if (config && [config isKindOfClass: [OBDictionary class]])
 		{
+			struct DiskObject *diskObject;
+
 			[self loadConfiguration: config];
+
+			if ((diskObject = GetDiskObject((STRPTR)path.nativeCString)))
+			{
+				if (FindToolType(diskObject->do_ToolTypes, "CONNECT"))
+					[self connect];
+				FreeDiskObject(diskObject);
+			}
 		}
 		else
 		{

@@ -5,19 +5,26 @@
  */
 
 #import <proto/icon.h>
+#import <proto/dos.h>
 #import <ob/OBFramework.h>
 #import "globaldefines.h"
 #import "terminal-window.h"
 #import "application.h"
 
 @implementation Application
+{
+	OBString *_startupConfigurationPath;
+	OBString *_executablePath;
+}
 
 @synthesize lastConfiguration;
+@synthesize executablePath = _executablePath;
 
 -(id) init
 {
 	if ((self = [super init]))
 	{
+		BPTR lock;
 		[OBLocalizedString openCatalog:@APP_TITLE ".catalog" withLocale:NULL];
 
 		self.title = @APP_TITLE;
@@ -28,7 +35,23 @@
 
 		self.description = OBL(@"Serial Port Terminal", @"Application Description");
 		self.base = @APP_TITLE;
-		self.diskObject = GetDiskObject("PROGDIR:" APP_TITLE);
+
+		[self parseWBStartupMessage];
+
+		if (self.executablePath == nil)
+		{
+			if ((lock = Lock("PROGDIR:" APP_TITLE, SHARED_LOCK)))
+			{
+				UBYTE buffer[1024];
+
+				if (NameFromLock(lock, buffer, sizeof(buffer)))
+					_executablePath = [OBString stringWithCString: buffer encoding: MIBENUM_SYSTEM];
+
+				UnLock(lock);
+			}
+		}
+
+		self.diskObject = GetDiskObject((STRPTR)self.executablePath.nativeCString);
 
 		return self;
 	}
@@ -54,6 +77,9 @@
 	[tw loadConfiguration: self.lastConfiguration];
 
 	tw.open = YES;
+
+	if (_startupConfigurationPath != nil)
+		[[OBRunLoop mainRunLoop] performSelector: @selector(parseConfigurationFile:) target: tw withObject: _startupConfigurationPath];
 
 	[super run];
 
@@ -120,6 +146,32 @@
 		self.lastConfiguration = config;
 
 	return [super import: dataspace];
+}
+
+extern struct WBStartup *_WBenchMsg; // from startup code
+-(VOID) parseWBStartupMessage
+{
+	OBString *fileName;
+	UBYTE buffer[1024];
+	struct WBArg;
+
+	if (!_WBenchMsg)
+		return;
+
+	if (NameFromLock(_WBenchMsg->sm_ArgList[0].wa_Lock, buffer, sizeof(buffer)) != 0)
+	{
+		fileName = [OBString stringWithCString: _WBenchMsg->sm_ArgList[0].wa_Name encoding: MIBENUM_SYSTEM];
+		_executablePath = [[OBString stringWithCString: buffer encoding: MIBENUM_SYSTEM] stringByAddingPathComponent: fileName];
+	}
+
+	if (_WBenchMsg->sm_NumArgs < 2)
+		return;
+
+	if (NameFromLock(_WBenchMsg->sm_ArgList[1].wa_Lock, buffer, sizeof(buffer)) == 0)
+		return;
+
+	fileName = [OBString stringWithCString: _WBenchMsg->sm_ArgList[1].wa_Name encoding: MIBENUM_SYSTEM];
+	_startupConfigurationPath = [[OBString stringWithCString: buffer encoding: MIBENUM_SYSTEM] stringByAddingPathComponent: fileName];
 }
 
 @end
