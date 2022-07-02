@@ -46,10 +46,12 @@ typedef enum
 
 @implementation TerminalWindow
 {
+	__weak MUIGroup *_pageGroup;
 	__weak MUIString *_unitString;
 	__weak MUICycle *_devicesCycle, *_baudRateCycle, *_dataBitsCycle, *_parityCycle, *_stopBitsCycle, *_charsetCycle;
 	__weak MUICheckmark *_xFlowCheckmark, *_eofModeCheckmark;
 	__weak MCCPowerTerm *_term;
+	__weak MUIScrollbar *_scrollbar;
 
 	__weak MUIMenu *_localEchoMenu, *_termEmulationModeMenu, *_sendModeMenu;
 	__weak MUIMenuitem *_disconnectMenuitem, *_termEmulationMenuitems[5], *_localEchoMenuitems[3], *_sendModeMenuitems[2];
@@ -207,21 +209,27 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			deviceConfigGroup.frame = MUIV_Frame_Group;
 			deviceConfigGroup.frameTitle = OBL(@"Connection", @"Connection configuration group title");
 
-			self.rootObject = [MUIGroup groupWithPages:
-				[MUIGroup groupWithObjects:
-					[MUIRectangle rectangle],
-					deviceConfigGroup,
-					[MUIGroup horizontalGroupWithObjects:
+			self.rootObject = [MUIGroup horizontalGroupWithObjects:
+				_pageGroup = [MUIGroup groupWithPages:
+					[MUIGroup groupWithObjects:
 						[MUIRectangle rectangle],
-						connectButton = [MUIButton buttonWithLabel: OBL(@"Connect", @"Button for configuration confirmation")],
+						deviceConfigGroup,
+						[MUIGroup horizontalGroupWithObjects:
+							[MUIRectangle rectangle],
+							connectButton = [MUIButton buttonWithLabel: OBL(@"Connect", @"Button for configuration confirmation")],
+							[MUIRectangle rectangle],
+						nil],
 						[MUIRectangle rectangle],
 					nil],
-					[MUIRectangle rectangle],
+					[MUIGroup groupWithObjects: _term, nil],
 				nil],
-				[MUIGroup groupWithObjects: _term, nil],
+				_scrollbar = [MUIScrollbar verticalScrollbar],
 			nil];
 			self.title = @APP_TITLE;
 			self.menustrip = [self createMenustrip];
+			self.useRightBorderScroller = YES;
+
+			_scrollbar.useWinBorder = MUIV_Prop_UseWinBorder_Right;
 
 			for (i = 0; i < sizeof(labels) / sizeof(*labels); i++)
 			{
@@ -241,7 +249,6 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_sendMode = MenuSendModeInteractive;
 			_term.emulation = MUIV_PowerTerm_Emulation_TTY;
 			_term.cRasCRLF = YES;
-
 			_unitString.integer = 0;
 
 			_xFlowCheckmark = xFlowCheckmark;
@@ -257,6 +264,15 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	}
 
 	return self;
+}
+
+- (Boopsiobject *)instantiate
+{
+	Boopsiobject *obj = [super instantiate];
+
+	_term.scroller = _scrollbar; /* needs to be set after instantiation of boopsi objects. bug? */
+
+	return obj;
 }
 
 -(VOID) dealloc
@@ -303,7 +319,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		return;
 	}
 
-	((MUIGroup *)self.rootObject).activePage = 1;
+	_pageGroup.activePage = 1;
 
 	_termResetMenuitem.enabled = YES;
 	_disconnectMenuitem.enabled = YES;
@@ -313,7 +329,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 -(VOID) disconnect
 {
-	((MUIGroup *)self.rootObject).activePage = 0;
+	_pageGroup.activePage = 0;
 
 	_termResetMenuitem.enabled = NO;
 	_disconnectMenuitem.enabled = NO;
