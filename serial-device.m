@@ -136,7 +136,7 @@
 -(SerialDeviceError) openWithBaudRate: (ULONG)bd dataBits: (UBYTE)db stopBits: (UBYTE)sb parity: (Parity)p xFlow: (BOOL)xFlow eofMode: (BOOL)eofMode
 {
 	SerialDeviceError err;
-	if(OpenDevice(_deviceName.cString, _deviceUnit, (struct IORequest *)_ioExtSerRead, 0) == 0)
+	if(OpenDevice(_deviceName.nativeCString, _deviceUnit, (struct IORequest *)_ioExtSerRead, 0) == 0)
 	{
 		_ioExtSerRead->io_Baud = bd;
 		_ioExtSerRead->io_ReadLen = _ioExtSerRead->io_WriteLen = db;

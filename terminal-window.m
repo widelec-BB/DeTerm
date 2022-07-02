@@ -615,8 +615,8 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		ASLFR_RejectIcons, TRUE,
 		ASLFR_PopToFront, TRUE,
 		ASLFR_Activate, TRUE,
-		ASLFR_TitleText, (IPTR)[OBL(@"Save Current Configuration Profile As", @"ASL requester for saving configuration profile title") cString],
-		ASLFR_PositiveText, (IPTR)[OBL(@"Save", @"ASL requester for saving configuration profile positive text") cString],
+		ASLFR_TitleText, (IPTR)[OBL(@"Save Current Configuration Profile As", @"ASL requester for saving configuration profile title") nativeCString],
+		ASLFR_PositiveText, (IPTR)[OBL(@"Save", @"ASL requester for saving configuration profile positive text") nativeCString],
 		ASLFR_InitialPattern, (IPTR)"#?",
 		ASLFR_DoPatterns, TRUE,
 	TAG_END);
@@ -692,8 +692,8 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		ASLFR_RejectIcons, TRUE,
 		ASLFR_PopToFront, TRUE,
 		ASLFR_Activate, TRUE,
-		ASLFR_TitleText, (IPTR)[OBL(@"Load Configuration Profile From", @"ASL requester for loading configuration profile title") cString],
-		ASLFR_PositiveText, (IPTR)[OBL(@"Load", @"ASL requester for loading configuration profile positive text") cString],
+		ASLFR_TitleText, (IPTR)[OBL(@"Load Configuration Profile From", @"ASL requester for loading configuration profile title") nativeCString],
+		ASLFR_PositiveText, (IPTR)[OBL(@"Load", @"ASL requester for loading configuration profile positive text") nativeCString],
 		ASLFR_InitialPattern, (IPTR)"#?",
 		ASLFR_DoPatterns, TRUE,
 	TAG_END);
