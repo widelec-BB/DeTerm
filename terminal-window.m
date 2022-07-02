@@ -406,7 +406,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			[MUIMenuitem itemWithTitle: OBL(@"Quit", @"Menu quit") shortcut: OBL(@"Q", @"Menu quit shortcut") userData: MenuQuit],
 		nil],
 		[[MUIMenu alloc] initWithTitle: OBL(@"Preferences", @"Menu entry label for preferences") objects:
-			_localEchoMenu = [MUIMenu menuWithTitle: OBL(@"Local echo mode...", @"Menu for local echo mode selection") objects:
+			_localEchoMenu = [MUIMenu menuWithTitle: OBL(@"Local Echo Mode...", @"Menu for local echo mode selection") objects:
 				_localEchoMenuitems[0] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Off", @"Local echo off menu label") shortcut: nil userData: MenuLocalEchoOff checked: YES],
 				_localEchoMenuitems[1] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Before Send", @"Local echo before send") shortcut: nil userData: MenuLocalEchoBeforeSend checked: NO],
 				_localEchoMenuitems[2] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"After Send", @"Local echo after send") shortcut: nil userData: MenuLocalEchoAfterSend checked: NO],
@@ -438,17 +438,10 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 -(VOID) setMenuAction: (ULONG)menuAction
 {
-	ULONG i;
-
 	if (menuAction & MenuTerminalEmulation)
 	{
-		ULONG mode = menuAction - MenuTerminalEmulation;
-
-		for (i = 0; i < sizeof(_termEmulationMenuitems) / sizeof(*_termEmulationMenuitems); i++)
-			_termEmulationMenuitems[i].checked = NO;
-
-		_term.emulation = mode;
-		_termEmulationMenuitems[mode].checked = YES;
+		self.terminalEmulationMode = menuAction - MenuTerminalEmulation;
+		return;
 	}
 
 	switch (menuAction)
@@ -484,16 +477,12 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		case MenuLocalEchoOff:
 		case MenuLocalEchoBeforeSend:
 		case MenuLocalEchoAfterSend:
-			for (i = 0; i < sizeof(_localEchoMenuitems) / sizeof(*_localEchoMenuitems); i++)
-				_localEchoMenuitems[i].checked = i + MenuLocalEchoOff == menuAction;
-			_localEchoMode = menuAction;
+			self.localEchoMode = menuAction;
 		break;
 
 		case MenuSendModeInteractive:
 		case MenuSendModeLineBuffered:
-			for (i = 0; i < sizeof(_sendModeMenuitems) / sizeof(*_sendModeMenuitems); i++)
-				_sendModeMenuitems[i].checked = i + MenuSendModeInteractive == menuAction;
-			_sendMode = menuAction;
+			self.sendMode = menuAction;
 		break;
 
 		case MenuCRAsCRLF:
@@ -504,8 +493,6 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_term.lFasCRLF = _LFAsCRLFMenuitem.checked;
 		break;
 	}
-
-	[self saveCurrentConfiguration];
 }
 
 -(VOID) writeToTerminal: (OBData *)data encoding: (ULONG)characterEncoding
@@ -567,20 +554,39 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	_xFlowCheckmark.selected = [[config objectForKey: @"xon-xoff"] boolValue];
 	_eofModeCheckmark.selected = [[config objectForKey: @"eof-mode"] boolValue];
 
-	_localEchoMode = [[config objectForKey: @"echo-mode"] unsignedLongValue];
-	for (i = 0; i < sizeof(_localEchoMenuitems) / sizeof(*_localEchoMenuitems); i++)
-		_localEchoMenuitems[i].checked = i + MenuLocalEchoOff == _localEchoMode;
-
-	_sendMode = [[config objectForKey: @"send-mode"] unsignedLongValue];
-	for (i = 0; i < sizeof(_sendModeMenuitems) / sizeof(*_sendModeMenuitems); i++)
-		_sendModeMenuitems[i].checked = i + MenuSendModeInteractive == _sendMode;
-
-	_term.emulation = [[config objectForKey: @"terminal-type"] unsignedLongValue];
-	for (i = 0; i < sizeof(_termEmulationMenuitems) / sizeof(*_termEmulationMenuitems); i++)
-		_termEmulationMenuitems[i].checked = i == _term.emulation;
+	self.localEchoMode = [[config objectForKey: @"echo-mode"] unsignedLongValue];
+	self.sendMode = [[config objectForKey: @"send-mode"] unsignedLongValue];
+	self.terminalEmulationMode = [[config objectForKey: @"terminal-type"] unsignedLongValue];
 
 	_CRAsCRLFMenuitem.checked = [[config objectForKey: @"cr-as-crlf"] boolValue];
 	_LFAsCRLFMenuitem.checked = [[config objectForKey: @"lf-as-crlf"] boolValue];
+}
+
+-(VOID) setLocalEchoMode: (ULONG)value
+{
+	ULONG i;
+
+	for (i = 0; i < sizeof(_localEchoMenuitems) / sizeof(*_localEchoMenuitems); i++)
+		_localEchoMenuitems[i].checked = i + MenuLocalEchoOff == value;
+	_localEchoMode = value;
+}
+
+-(VOID) setSendMode: (ULONG)value
+{
+	ULONG i;
+
+	for (i = 0; i < sizeof(_sendModeMenuitems) / sizeof(*_sendModeMenuitems); i++)
+		_sendModeMenuitems[i].checked = i + MenuSendModeInteractive == value;
+	_sendMode = value;
+}
+
+-(VOID) setTerminalEmulationMode: (ULONG)value
+{
+	ULONG i;
+
+	for (i = 0; i < sizeof(_termEmulationMenuitems) / sizeof(*_termEmulationMenuitems); i++)
+		_termEmulationMenuitems[i].checked = i == value;
+	_term.emulation = value;
 }
 
 @end
