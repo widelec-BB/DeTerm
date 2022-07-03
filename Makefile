@@ -90,7 +90,7 @@ dist: release $(CATALOGS)
 	@mkdir RAM:$(OUTFILE)
 	@copy $(OUTFILE) RAM:$(OUTFILE)/$(OUTFILE) >NIL:
 	@strip --strip-unneeded --remove-section .comment RAM:$(OUTFILE)/$(OUTFILE) >NIL:
-	@-copy $(OUTFILE).info RAM:$(OUTFILE)/$(OUTFILE).info >NIL:
+	@copy docs/icon.info RAM:$(OUTFILE)/$(OUTFILE).info >NIL:
 	@copy docs/determ.readme RAM:$(OUTFILE)/$(OUTFILE).readme >NIL:
 	@copy SYS:Prefs/Presets/Deficons/def_drawer.info RAM:$(OUTFILE).info
 	@$(foreach LANG, $(CATALOGS:locale/%.catalog=%), mkdir -p RAM:$(OUTFILE)/catalogs/$(LANG) >NIL:)

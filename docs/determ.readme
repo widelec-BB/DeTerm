@@ -1,11 +1,13 @@
 Short:          Serial port terminal
-Author:         Filip "widelec" Maryjañski
+Author:         Filip "widelec" Maryjanski
 Type:           comm/term
 Version:        1.1
 Architecture:   ppc-morphos
 
 
 This is a terminal program for communicating via serial port.
+
+Icon made by cah nggunung from www.flaticon.com (https://www.flaticon.com/premium-icon/connection_5935175).
 
 
 What do you need:

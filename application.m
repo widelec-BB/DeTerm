@@ -110,7 +110,7 @@
 #ifdef __GIT_HASH__
 	aboutbox.build = @__GIT_HASH__;
 #endif
-	aboutbox.credits = @"\33b%p\33n\n\t" APP_AUTHOR "\n";
+	aboutbox.credits = [@"\33b%p\33n\n\t" APP_AUTHOR "\n\33b%I\33n\n\t" stringByAppendingString: OBL(@"cah nggunung from www.flaticon.com", @"Icon credits")];
 
 	[self addObject: aboutbox];
 	aboutbox.open = YES;
