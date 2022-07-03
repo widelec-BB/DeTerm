@@ -252,9 +252,9 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_dataBitsCycle.active = 3; // 8
 			_parityCycle.active = ParityNone;
 			_charsetCycle.active = 0; // write raw data = no conversion
-			_localEchoMode = MenuLocalEchoOff;
-			_sendMode = MenuSendModeInteractive;
-			_term.emulation = MUIV_PowerTerm_Emulation_TTY;
+			self.localEchoMode = MenuLocalEchoOff;
+			self.sendMode = MenuSendModeInteractive;
+			self.terminalEmulationMode = MUIV_PowerTerm_Emulation_TTY;
 			_term.cRasCRLF = YES;
 			_unitString.integer = 0;
 
