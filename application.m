@@ -132,7 +132,7 @@
 	OBJSONSerializer *serializer = [OBJSONSerializer serializer];
 	OBData *data = [serializer serializeDictionary: self.lastConfiguration error: NULL];
 
-	[dataspace setData: data forID: 10];
+	[dataspace setData: data forID: MAKE_ID('L', 'A', 'S', 'T')];
 
 	return [super export: dataspace];
 }
@@ -140,7 +140,7 @@
 -(IPTR) import: (MUIDataspace *)dataspace
 {
 	OBJSONDeserializer *deserializer = [OBJSONDeserializer deserializer];
-	OBDictionary *config = [deserializer deserializeAsDictionary: [dataspace dataForID: 10] error: NULL];
+	OBDictionary *config = [deserializer deserializeAsDictionary: [dataspace dataForID: MAKE_ID('L', 'A', 'S', 'T')] error: NULL];
 
 	if (config && [config isKindOfClass: [OBDictionary class]])
 		self.lastConfiguration = config;
