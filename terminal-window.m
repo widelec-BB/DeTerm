@@ -538,8 +538,9 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 -(VOID) loadConfiguration: (OBDictionary *)config
 {
 	ULONG i;
+	OBNumber *number;
 
-	if (config == nil)
+	if (config == nil || config.count == 0)
 		return;
 
 	i = [_devicesCycle.entries indexOfObject: [config objectForKey: @"device-name"]];
@@ -564,19 +565,41 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	if (i != OBNotFound)
 		_stopBitsCycle.active = i;
 
-	_xFlowCheckmark.selected = [[config objectForKey: @"xon-xoff"] boolValue];
-	_eofModeCheckmark.selected = [[config objectForKey: @"eof-mode"] boolValue];
+	number = [config objectForKey: @"xon-xoff"];
+	if (number)
+		_xFlowCheckmark.selected = number.boolValue;
 
-	self.localEchoMode = [[config objectForKey: @"echo-mode"] unsignedLongValue];
-	self.sendMode = [[config objectForKey: @"send-mode"] unsignedLongValue];
-	self.terminalEmulationMode = [[config objectForKey: @"terminal-type"] unsignedLongValue];
+	number = [config objectForKey: @"eof-mode"];
+	if (number)
+		_eofModeCheckmark.selected = number.boolValue;
 
-	_CRAsCRLFMenuitem.checked = [[config objectForKey: @"cr-as-crlf"] boolValue];
-	_LFAsCRLFMenuitem.checked = [[config objectForKey: @"lf-as-crlf"] boolValue];
+	number = [config objectForKey: @"echo-mode"];
+	if (number)
+		self.localEchoMode = number.unsignedLongValue;
 
-	i = [CharsetOptions indexOfObject: [config objectForKey: @"charset-mibenum"]];
-	if (i != OBNotFound)
-		_charsetCycle.active = i;
+	number = [config objectForKey: @"send-mode"];
+	if (number)
+		self.sendMode = number.unsignedLongValue;
+
+	number = [config objectForKey: @"terminal-type"];
+	if (number)
+		self.terminalEmulationMode = number.unsignedLongValue;
+
+	number = [config objectForKey: @"cr-as-crlf"];
+	if (number)
+		_CRAsCRLFMenuitem.checked = number.boolValue;
+
+	number = [config objectForKey: @"lf-as-crlf"];
+	if (number)
+		_LFAsCRLFMenuitem.checked = number.boolValue;
+
+	number = [config objectForKey: @"charset-mibenum"];
+	if (number)
+	{
+		i = [CharsetOptions indexOfObject: number];
+		if (i != OBNotFound)
+			_charsetCycle.active = i;
+	}
 }
 
 -(VOID) saveCurrentConfigurationToFile

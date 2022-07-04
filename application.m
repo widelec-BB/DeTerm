@@ -142,7 +142,7 @@
 	OBJSONDeserializer *deserializer = [OBJSONDeserializer deserializer];
 	OBDictionary *config = [deserializer deserializeAsDictionary: [dataspace dataForID: MAKE_ID('L', 'A', 'S', 'T')] error: NULL];
 
-	if (config && [config isKindOfClass: [OBDictionary class]])
+	if (config && [config isKindOfClass: [OBDictionary class]] && config.count > 0)
 		self.lastConfiguration = config;
 
 	return [super import: dataspace];
