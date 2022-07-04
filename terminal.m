@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2018-2022 Filip "widelec-BB" Maryjanski, BlaBla group.
+ * All rights reserved.
+ * Distributed under the terms of the MIT License.
+ */
+
 #import <devices/rawkeycodes.h>
 #import "globaldefines.h"
 #import "terminal.h"
