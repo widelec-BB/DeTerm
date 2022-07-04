@@ -273,7 +273,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	return self;
 }
 
-- (Boopsiobject *)instantiate
+-(Boopsiobject *) instantiate
 {
 	Boopsiobject *obj = [super instantiate];
 

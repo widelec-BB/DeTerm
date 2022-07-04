@@ -136,7 +136,7 @@
 -(SerialDeviceError) openWithBaudRate: (ULONG)bd dataBits: (UBYTE)db stopBits: (UBYTE)sb parity: (Parity)p xFlow: (BOOL)xFlow eofMode: (BOOL)eofMode
 {
 	SerialDeviceError err;
-	if(OpenDevice(_deviceName.nativeCString, _deviceUnit, (struct IORequest *)_ioExtSerRead, 0) == 0)
+	if (OpenDevice(_deviceName.nativeCString, _deviceUnit, (struct IORequest *)_ioExtSerRead, 0) == 0)
 	{
 		_ioExtSerRead->io_Baud = bd;
 		_ioExtSerRead->io_ReadLen = _ioExtSerRead->io_WriteLen = db;
@@ -210,7 +210,7 @@
 		_ioExtSerRead->IOSer.io_Data = (APTR)_buffer;
 		_ioExtSerRead->IOSer.io_Command = CMD_READ;
 
-		if((err = DoIO((struct IORequest *)_ioExtSerRead)) != 0)
+		if ((err = DoIO((struct IORequest *)_ioExtSerRead)) != 0)
 			return err;
 
 		[data appendBytes: _buffer length: _ioExtSerRead->IOSer.io_Actual];
@@ -259,7 +259,7 @@
 				return;
 			}
 
-			if(_ioExtSerRead->IOSer.io_Actual > 0)
+			if (_ioExtSerRead->IOSer.io_Actual > 0)
 			{
 				ULONG alreadyReceived = _ioExtSerRead->IOSer.io_Actual;
 
@@ -283,7 +283,7 @@
 
 			[self enqueueRead];
 		}
-		else if(msg == (struct Message *)_ioExtSerWrite)
+		else if (msg == (struct Message *)_ioExtSerWrite)
 		{
 			if (self.delegate)
 				[self.delegate writeResultFromSerialDevice: _ioExtSerRead->IOSer.io_Error data: _writeData];
@@ -297,14 +297,14 @@
 	ENTER();
 
 	_rxPort = CreateMsgPort();
-	if(!_rxPort)
+	if (!_rxPort)
 	{
 		LEAVE_ERROR("Failed to create MsgPort");
 		return NO;
 	}
 
 	_ioExtSerRead = (struct IOExtSer*)CreateExtIO(_rxPort, sizeof(struct IOExtSer));
-	if(!_ioExtSerRead)
+	if (!_ioExtSerRead)
 	{
 		LEAVE_ERROR("Failed to create io request (read)");
 		return NO;
@@ -312,7 +312,7 @@
 	_ioExtSerRead->IOSer.io_Command = CMD_INVALID;
 
 	_ioExtSerWrite = (struct IOExtSer*)CreateExtIO(_rxPort, sizeof(struct IOExtSer));
-	if(!_ioExtSerWrite)
+	if (!_ioExtSerWrite)
 	{
 		LEAVE_ERROR("Failed to create io request (write)");
 		return NO;
@@ -320,7 +320,7 @@
 	_ioExtSerWrite->IOSer.io_Command = CMD_INVALID;
 
 	_sigHandler = [[OBSignalHandler alloc] initWithSharedSignalBit:(LONG)_rxPort->mp_SigBit task:(APTR)NULL freeWhenDone:(BOOL)NO];
-	if(!_sigHandler)
+	if (!_sigHandler)
 	{
 		LEAVE_ERROR("Failed to create signal handler");
 		return NO;
@@ -361,7 +361,7 @@
 		DeleteExtIO((struct IORequest *)_ioExtSerRead);
 	}
 
-	if(_rxPort)
+	if (_rxPort)
 	{
 		while(GetMsg(_rxPort));
 		DeleteMsgPort(_rxPort);
