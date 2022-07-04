@@ -2,317 +2,318 @@
 ## language polski
 ## codeset 0
 ;
+;#version 1
 ; (Application Description)
 MSG_3f6c45fe
 Terminal do komunikacji przez port szeregowy
-;Serial Port Terminal
+; Serial Port Terminal
 ;
 ; (Icon credits)
 MSG_8533e75
 cah nggunung z www.flaticon.com
-;cah nggunung from www.flaticon.com
+; cah nggunung from www.flaticon.com
 ;
 ; (Error message)
 MSG_4cc541cc
 Nie uda³o siê otworzyæ urz±dzenia.
-;Failed to open device.
+; Failed to open device.
 ;
 ; (Error message)
 MSG_96800d11
 Urz±dzenie jest zajête.
-;Device is busy.
+; Device is busy.
 ;
 ; (Error message)
 MSG_add54b91
 Nieprawid³owe ustawienie prêdko¶ci transmisji.
-;Invalid baud rate.
+; Invalid baud rate.
 ;
 ; (Error message)
 MSG_75336d91
 Nieprawid³owa konfiguracja urz±dzenia.
-;Invalid device configuration.
+; Invalid device configuration.
 ;
 ; (Error message)
 MSG_2583543e
 B³±d kontroli parzysto¶ci.
-;Parity check failed.
+; Parity check failed.
 ;
 ; (Error message)
 MSG_6df1b99c
 B³±d portu szeregowego.
-;Serial device error.
+; Serial device error.
 ;
 ; (Label for parity settings (turned off))
 MSG_71112ac4
 Brak
-;None
+; None
 ;
 ; (Label for parity settings (parity on even bits))
 MSG_f0c0640b
 Parzyste
-;Even
+; Even
 ;
 ; (Label for parity settings (parity on odd bits))
 MSG_c204f93d
 Nieparzyste
-;Odd
+; Odd
 ;
 ; (No conversion option for charset encoding)
 MSG_520a57
 Bez konwersji
-;Raw (no conversion)
+; Raw (no conversion)
 ;
 ; (Label for system charset encoding)
 MSG_ce098af6
 %s (lokalne)
-;%s (local)
+; %s (local)
 ;
 ; (Label for cycle with available devices)
 MSG_ecd060c6
 Urz±dzenie:
-;Device:
+; Device:
 ;
 ; (Label for cycle with baud rate selection)
 MSG_8c55c1c8
 Prêdko¶æ transmisji:
-;Baud Rate:
+; Baud Rate:
 ;
 ; (Label for cycle with data bits selection)
 MSG_d3d7e10
 Bity danych:
-;Data Bits:
+; Data Bits:
 ;
 ; (Label for cycle with parity mode selection)
 MSG_71ba450f
 Kontrola parzysto¶ci:
-;Parity:
+; Parity:
 ;
 ; (Label for cycle with number of stop bits selection)
 MSG_55c4ef06
 Bity stopu:
-;Stop Bits:
+; Stop Bits:
 ;
 ; (Label for cycle to select received text encoding)
 MSG_8db9de78
 Kodowanie tekstu:
-;Text Encoding:
+; Text Encoding:
 ;
 ; (Label for checkmark activating flow control)
 MSG_2de54f82
 Kontrola transmisji X-ON/X-OFF
-;X-ON/X-OFF Flow Control
+; X-ON/X-OFF Flow Control
 ;
 ; (Label for checkmark activating EOF mode)
 MSG_f635f49d
 Tryb EOF
-;EOF Mode
+; EOF Mode
 ;
 ; (Connection configuration group title)
 MSG_6aaa30ac
 Po³±czenie
-;Connection
+; Connection
 ;
 ; (Button for configuration confirmation)
 MSG_6b7a7833
 Po³±cz
-;Connect
+; Connect
 ;
 ; (Requester title for error)
 MSG_2d68dc82
 B³±d
-;Error
+; Error
 ;
 ; (Error requester confirmation button)
 MSG_8d66d78d
 _OK
-;_OK
+; _OK
 ;
 ; (Requester title for serial device error)
 MSG_84a51e22
 B³±d portu szeregowego
-;Serial Device Error
+; Serial Device Error
 ;
 ; (Ignore error button)
 MSG_e78f5392
 Z_ignoruj
-;_Ignore
+; _Ignore
 ;
 ; (Disconnect after error button)
 MSG_e7796c30
 _Roz³±cz
-;_Disconnect
+; _Disconnect
 ;
 ; (Menu entry label)
 MSG_668052c6
 Otwórz nowe okno terminala...
-;Open New Terminal Window...
+; Open New Terminal Window...
 ;
 ; (Menu entry label)
 MSG_30703b42
 Za³aduj konfiguracjê z...
-;Load Configuration From...
+; Load Configuration From...
 ;
 ; (Menu entry label)
 MSG_1057ae94
 Zapisz aktualn± konfiguracjê jako...
-;Save Current Configuration As...
+; Save Current Configuration As...
 ;
 ; (Menu entry label)
 MSG_6213b62b
 Zresetuj terminal
-;Reset Terminal
+; Reset Terminal
 ;
 ; (Menu entry label)
 MSG_71db6e56
 Roz³±cz
-;Disconnect
+; Disconnect
 ;
 ; (Menu entry label)
 MSG_bf0efcf1
 O programie...
-;About...
+; About...
 ;
 ; (Menu About entry shortcut)
 MSG_ac22fc62
 ?
-;?
+; ?
 ;
 ; (Menu entry label)
 MSG_855d8dfc
 O MUI...
-;About MUI...
+; About MUI...
 ;
 ; (Menu quit)
 MSG_d772cc20
 Skoñcz
-;Quit
+; Quit
 ;
 ; (Menu quit shortcut)
 MSG_edd08b2a
 Q
-;Q
+; Q
 ;
 ; (Menu entry label for preferences)
 MSG_bc4a04f7
 Ustawienia
-;Preferences
+; Preferences
 ;
 ; (Menu for local echo mode selection)
 MSG_b09e9dcf
 Tryb lokalnego echa...
-;Local Echo Mode...
+; Local Echo Mode...
 ;
 ; (Local echo off menu label)
 MSG_1b23fffa
 Brak
-;Off
+; Off
 ;
 ; (Local echo before send)
 MSG_7f55ff69
 Przed wys³aniem
-;Before Send
+; Before Send
 ;
 ; (Local echo after send)
 MSG_dcaf0967
 Po wys³aniu
-;After Send
+; After Send
 ;
 ; (Menu for send mode selection)
 MSG_233b78af
 Tryb transmisji...
-;Send Mode...
+; Send Mode...
 ;
 ; (Interactive send mode)
 MSG_b4d82a50
 Interaktywna
-;Interactive
+; Interactive
 ;
 ; (Line buffered send mode)
 MSG_a419792a
 Buforowanie linii
-;Line Buffered
+; Line Buffered
 ;
 ; (Menu for terminal emulation mode)
 MSG_eed03584
 Emulacja terminala...
-;Terminal Emulation...
+; Terminal Emulation...
 ;
 ; (ANSI terminal emulation)
 MSG_c25c1502
 ANSI X3.64 1979
-;ANSI X3.64 1979
+; ANSI X3.64 1979
 ;
 ; (VT100 terminal emulation)
 MSG_56e2d671
 DEC VT100
-;DEC VT100
+; DEC VT100
 ;
 ; (TTY terminal emulation)
 MSG_47bcfef1
 TTY
-;TTY
+; TTY
 ;
 ; (XTerm terminal emulation)
 MSG_69e3472f
 XTerm
-;XTerm
+; XTerm
 ;
 ; (Amiga con-handler emulation)
 MSG_3dfa0a3c
 Amiga
-;Amiga
+; Amiga
 ;
 ; (End line interpretation option)
 MSG_f1b6eac2
 Interpretuj CR jako CRLF
-;Interpret CR as CRLF
+; Interpret CR as CRLF
 ;
 ; (End line interpretation option)
 MSG_df78c19f
 Interpretuj LF jako CRLF
-;Interpret LF as CRLF
+; Interpret LF as CRLF
 ;
 ; (Menu MUI Preferences)
 MSG_7155008c
 MUI...
-;MUI...
+; MUI...
 ;
 ; (ASL requester for saving configuration profile title)
 MSG_88991eee
 Zapisz aktualny profil konfiguracji jako
-;Save Current Configuration Profile As
+; Save Current Configuration Profile As
 ;
 ; (ASL requester for saving configuration profile positive text)
 MSG_16fd1e4
 Zapisz
-;Save
+; Save
 ;
 ; (File save error message)
 MSG_7f060416
 Wyst±pi³ b³±d podczas zapisywania pliku.
-;There was an error during file save operation.
+; There was an error during file save operation.
 ;
 ; (File save error message)
 MSG_1104f79f
 Wyst±pi³ b³±d podczas zapisywania pliku ikony.
-;There was an error during icon file save operation.
+; There was an error during icon file save operation.
 ;
 ; (ASL requester for loading configuration profile title)
 MSG_bc7bbdd2
 Za³aduj profil konfiguracji z
-;Load Configuration Profile From
+; Load Configuration Profile From
 ;
 ; (ASL requester for loading configuration profile positive text)
 MSG_4b63ec2b
 Za³aduj
-;Load
+; Load
 ;
 ; (File format error message)
 MSG_939469fb
 Niepoprawny format pliku.
-;Invalid file format.
+; Invalid file format.
 ;
 ; (File load error message)
 MSG_8269fc4f
 Plik nie znaleziony.
-;File not found.
+; File not found.
