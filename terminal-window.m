@@ -13,11 +13,11 @@
 #import <workbench/icon.h>
 #import <clib/alib_protos.h>
 #import <mui/muiFramework.h>
-#import <mui/PowerTerm_mcc.h>
 
 #import <string.h>
 #import "globaldefines.h"
 #import "application.h"
+#import "terminal.h"
 #import "terminal-window.h"
 
 typedef enum
@@ -57,7 +57,7 @@ typedef enum
 	__weak MUIString *_unitString;
 	__weak MUICycle *_devicesCycle, *_baudRateCycle, *_dataBitsCycle, *_parityCycle, *_stopBitsCycle, *_charsetCycle;
 	__weak MUICheckmark *_xFlowCheckmark, *_eofModeCheckmark;
-	__weak MCCPowerTerm *_term;
+	__weak Terminal *_term;
 	__weak MUIScrollbar *_scrollbar;
 
 	__weak MUIMenu *_localEchoMenu, *_termEmulationModeMenu, *_sendModeMenu;
@@ -170,7 +170,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 {
 	if ([TerminalWindow setup])
 	{
-		MCCPowerTerm *termobj = [[MCCPowerTerm alloc] init];
+		Terminal *termobj = [[Terminal alloc] init];
 
 		if (termobj && (self = [super init]))
 		{
@@ -181,12 +181,6 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			MUIText *labels[6];
 
 			_term = termobj;
-			_term.eatAllInput = YES;
-			_term.outEnable = YES;
-			_term.uTFEnable = YES;
-			_term.localAlt = MUIV_PowerTerm_LocalAlt_Right;
-			_term.destructiveBS = YES;
-			_term.resizableHistory = YES;
 
 			deviceConfigGroup = [MUIGroup groupWithObjects:
 				[MUIGroup groupWithColumns: 2 objects:
@@ -352,7 +346,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	if (err == 0)
 	{
 		DumpBinaryData((UBYTE *)data.bytes, data.length);
-		[self writeToTerminal: data encoding: [[CharsetOptions objectAtIndex: _charsetCycle.active] unsignedLongValue]];
+		[_term write: data encoding: [[CharsetOptions objectAtIndex: _charsetCycle.active] unsignedLongValue]];
 	}
 	else
 		[self displayErrorRequester: err];
@@ -363,7 +357,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	if (err == 0)
 	{
 		if (_localEchoMode == MenuLocalEchoAfterSend)
-			[self writeToTerminal: data encoding: MIBENUM_UTF_8];
+			[_term write: data encoding: MIBENUM_UTF_8];
 	}
 	else
 		[self displayErrorRequester: err];
@@ -385,7 +379,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 	if (_localEchoMode == MenuLocalEchoBeforeSend)
 	{
-		[self writeToTerminal: [OBData dataWithBytes: _term.outPtr + nextEchoStart length: _term.outLen - nextEchoStart] encoding: MIBENUM_UTF_8];
+		[_term write: [OBData dataWithBytes: _term.outPtr + nextEchoStart length: _term.outLen - nextEchoStart] encoding: MIBENUM_UTF_8];
 		nextEchoStart = _term.outLen;
 	}
 	if (_sendMode == MenuSendModeInteractive || lastChar == 0x0D || lastChar == 0x0A)
@@ -512,17 +506,6 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_term.lFasCRLF = _LFAsCRLFMenuitem.checked;
 		break;
 	}
-}
-
--(VOID) writeToTerminal: (OBData *)data encoding: (ULONG)characterEncoding
-{
-	if (characterEncoding != MIBENUM_INVALID && characterEncoding != MIBENUM_UTF_8)
-	{
-		OBString *str = [OBString stringFromData: data encoding: characterEncoding];
-		[_term writeUnicode: (APTR)str.cString length: str.length format: MUIV_PowerTerm_WriteUnicode_UTF8];
-	}
-	else
-		[_term write: (APTR)data.bytes length: data.length];
 }
 
 -(OBDictionary *) currentConfiguration
