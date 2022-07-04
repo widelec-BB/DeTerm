@@ -25,7 +25,12 @@
 	if ((self = [super init]))
 	{
 		BPTR lock;
+
+#ifdef DEBUG
+		[OBContext trapDeallocatedObjects: YES];
+#endif
 		[OBLocalizedString openCatalog:@APP_TITLE ".catalog" withLocale:NULL];
+
 
 		self.title = @APP_TITLE;
 		self.author = @APP_AUTHOR;
