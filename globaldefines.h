@@ -4,6 +4,8 @@
  * Distributed under the terms of the MIT License.
  */
 
+#import <exec/types.h>
+
 #if DEBUG
 #include <clib/debug_protos.h>
 #define tprintf(template, ...) KPrintF((CONST_STRPTR)APP_TITLE " " __FILE__ " %d: " template, __LINE__ , ##__VA_ARGS__)
