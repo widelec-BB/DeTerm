@@ -386,7 +386,15 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	}
 	if (_sendMode == MenuSendModeInteractive || lastChar == 0x0D || lastChar == 0x0A)
 	{
-		[_serialDevice write: [OBData dataWithBytes: _term.outPtr length: _term.outLen]];
+		ULONG characterEncoding = [[CharsetOptions objectAtIndex: _charsetCycle.active] unsignedLongValue];
+		OBData *data;
+
+		if (characterEncoding != MIBENUM_INVALID && characterEncoding != MIBENUM_UTF_8)
+			data = [[OBString stringWithCString: _term.outPtr length: _term.outLen encoding: MIBENUM_UTF_8] dataWithEncoding: characterEncoding];
+		else
+			data = [OBData dataWithBytes: _term.outPtr length: _term.outLen];
+
+		[_serialDevice write: data];
 		[_term outFlush];
 		nextEchoStart = 0;
 		return;
