@@ -111,11 +111,15 @@
 -(VOID) about
 {
 	MCCAboutbox *aboutbox = [[MCCAboutbox alloc] init];
+	OBString *credits = @"\33b%p\33n\n\t" APP_AUTHOR "\n\33b%I\33n\n\t";
+
+	credits = [credits stringByAppendingString: OBL(@"cah nggunung from www.flaticon.com", @"Icon credits")];
+	credits = [credits stringByAppendingString: @"\n\33b%t\33n\n\tJaca\n\tTcheko"];
 
 #ifdef __GIT_HASH__
 	aboutbox.build = @__GIT_HASH__;
 #endif
-	aboutbox.credits = [@"\33b%p\33n\n\t" APP_AUTHOR "\n\33b%I\33n\n\t" stringByAppendingString: OBL(@"cah nggunung from www.flaticon.com", @"Icon credits")];
+	aboutbox.credits = credits;
 
 	[self addObject: aboutbox];
 	aboutbox.open = YES;
