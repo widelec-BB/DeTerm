@@ -276,7 +276,7 @@
 				}
 				else
 				{
-					OBData *data = [OBData dataWithBytes: _buffer length: 1];
+					OBData *data = [OBData dataWithBytesNoCopy: _buffer length: 1];
 					[self.delegate receiveFromSerialDevice: 0 data: data];
 				}
 			}

@@ -381,7 +381,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 	if (_localEchoMode == MenuLocalEchoBeforeSend)
 	{
-		[_term write: [OBData dataWithBytes: _term.outPtr + nextEchoStart length: _term.outLen - nextEchoStart] encoding: MIBENUM_UTF_8];
+		[_term write: [OBData dataWithBytesNoCopy: _term.outPtr + nextEchoStart length: _term.outLen - nextEchoStart] encoding: MIBENUM_UTF_8];
 		nextEchoStart = _term.outLen;
 	}
 	if (_sendMode == MenuSendModeInteractive || lastChar == 0x0D || lastChar == 0x0A)
