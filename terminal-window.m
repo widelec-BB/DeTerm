@@ -241,6 +241,16 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_unitString.weight = 5;
 			_unitString.accept = @"0123456789";
 
+			_devicesCycle.cycleChain = 1;
+			_unitString.cycleChain = 1;
+			_baudRateCycle.cycleChain = 1;
+			_dataBitsCycle.cycleChain = 1;
+			_parityCycle.cycleChain = 1;
+			_stopBitsCycle.cycleChain = 1;
+			_charsetCycle.cycleChain = 1;
+			xFlowCheckmark.cycleChain = 1;
+			eofModeCheckmark.cycleChain = 1;
+
 			/* set some sensible defaults */
 			_baudRateCycle.active = 16; // 115200
 			_dataBitsCycle.active = 3; // 8
