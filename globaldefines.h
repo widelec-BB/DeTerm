@@ -29,7 +29,7 @@
 
 #define APP_CYEARS         "2018 - "__YEAR__
 #define APP_VER_MAJOR      1
-#define APP_VER_MINOR      1
+#define APP_VER_MINOR      2
 #define APP_VER_NO         MACRO_TO_STRING(APP_VER_MAJOR)"."MACRO_TO_STRING(APP_VER_MINOR)
 #define APP_COPYRIGHT      APP_CYEARS " " APP_AUTHOR
 #define APP_VERSION        "$VER: " APP_TITLE " " APP_VER_NO " (" __APP_DATE__ ") (c) " APP_COPYRIGHT
