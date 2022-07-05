@@ -174,30 +174,28 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 		if (termobj && (self = [super init]))
 		{
-			LONG i;
 			MUIGroup *deviceConfigGroup;
 			MUIButton *connectButton;
 			MUICheckmark *xFlowCheckmark, *eofModeCheckmark;
-			MUIText *labels[6];
 
 			_term = termobj;
 
 			deviceConfigGroup = [MUIGroup groupWithObjects:
 				[MUIGroup groupWithColumns: 2 objects:
-					labels[0] = [MUIText textWithContents: OBL(@"Device:", @"Label for cycle with available devices")],
+					[MUILabel label2: OBL(@"Device:", @"Label for cycle with available devices")],
 					[MUIGroup horizontalGroupWithObjects:
 						_devicesCycle = [MUICycle cycleWithEntries: [SerialDevice availableDevices]],
 						_unitString = [MUIString stringWithContents: @"0"],
 					nil],
-					labels[1] = [MUIText textWithContents: OBL(@"Baud Rate:", @"Label for cycle with baud rate selection")],
+					[MUILabel label2: OBL(@"Baud Rate:", @"Label for cycle with baud rate selection")],
 					_baudRateCycle = [MUICycle cycleWithEntries: BaudRateOptions],
-					labels[2] = [MUIText textWithContents: OBL(@"Data Bits:", @"Label for cycle with data bits selection")],
+					[MUILabel label2: OBL(@"Data Bits:", @"Label for cycle with data bits selection")],
 					_dataBitsCycle = [MUICycle cycleWithEntries: DataBitsOptions],
-					labels[3] = [MUIText textWithContents: OBL(@"Parity:", @"Label for cycle with parity mode selection")],
+					[MUILabel label2: OBL(@"Parity:", @"Label for cycle with parity mode selection")],
 					_parityCycle = [MUICycle cycleWithEntries: ParityOptionsLabels],
-					labels[4] = [MUIText textWithContents: OBL(@"Stop Bits:", @"Label for cycle with number of stop bits selection")],
+					[MUILabel label2: OBL(@"Stop Bits:", @"Label for cycle with number of stop bits selection")],
 					_stopBitsCycle = [MUICycle cycleWithEntries: StopBitsOptions],
-					labels[5] = [MUIText textWithContents: OBL(@"Text Encoding:", @"Label for cycle to select received text encoding")],
+					[MUILabel label2: OBL(@"Text Encoding:", @"Label for cycle to select received text encoding")],
 					_charsetCycle = [MUICycle cycleWithEntries: CharsetOptionsLabels],
 				nil],
 				[MUIGroup horizontalGroupWithObjects:
@@ -232,12 +230,6 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 			_scrollbar.useWinBorder = MUIV_Prop_UseWinBorder_Right;
 
-			for (i = 0; i < sizeof(labels) / sizeof(*labels); i++)
-			{
-				labels[i].preParse = @"\33r";
-				labels[i].weight = 1;
-				labels[i].frame = MUIV_Frame_String;
-			}
 			_unitString.weight = 5;
 			_unitString.accept = @"0123456789";
 
