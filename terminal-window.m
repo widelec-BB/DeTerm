@@ -420,7 +420,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			[MUIMenuitem barItem],
 			[MUIMenuitem itemWithTitle: OBL(@"Quit", @"Menu quit") shortcut: OBL(@"Q", @"Menu quit shortcut") userData: MenuQuit],
 		nil],
-		[[MUIMenu alloc] initWithTitle: OBL(@"Preferences", @"Menu entry label for preferences") objects:
+		[[MUIMenu alloc] initWithTitle: OBL(@"Settings", @"Menu entry label for settings") objects:
 			_localEchoMenu = [MUIMenu menuWithTitle: OBL(@"Local Echo Mode...", @"Menu for local echo mode selection") objects:
 				_localEchoMenuitems[0] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Off", @"Local echo off menu label") shortcut: nil userData: MenuLocalEchoOff checked: YES],
 				_localEchoMenuitems[1] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Before Send", @"Local echo before send") shortcut: nil userData: MenuLocalEchoBeforeSend checked: NO],
@@ -441,7 +441,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			_CRAsCRLFMenuitem = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Interpret CR as CRLF", @"End line interpretation option") shortcut: nil userData: MenuCRAsCRLF checked: YES],
 			_LFAsCRLFMenuitem = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Interpret LF as CRLF", @"End line interpretation option") shortcut: nil userData: MenuLFAsCRLF checked: NO],
 			[MUIMenuitem barItem],
-			[MUIMenuitem itemWithTitle: OBL(@"MUI...", @"Menu MUI Preferences") shortcut: nil userData: MenuMUIPreferences],
+			[MUIMenuitem itemWithTitle: OBL(@"MUI...", @"Menu MUI Settings") shortcut: nil userData: MenuMUIPreferences],
 		nil],
 	nil];
 

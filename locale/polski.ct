@@ -193,10 +193,10 @@ MSG_edd08b2a
 Q
 ; Q
 ;
-; (Menu entry label for preferences)
-MSG_bc4a04f7
+; (Menu entry label for settings)
+MSG_78c92355
 Ustawienia
-; Preferences
+; Settings
 ;
 ; (Menu for local echo mode selection)
 MSG_b09e9dcf
@@ -273,8 +273,8 @@ MSG_df78c19f
 Interpretuj LF jako CRLF
 ; Interpret LF as CRLF
 ;
-; (Menu MUI Preferences)
-MSG_7155008c
+; (Menu MUI Settings)
+MSG_c3acedab
 MUI...
 ; MUI...
 ;
