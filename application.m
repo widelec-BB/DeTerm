@@ -7,6 +7,7 @@
 #import <proto/icon.h>
 #import <proto/dos.h>
 #import <ob/OBFramework.h>
+#import <string.h>
 #import "globaldefines.h"
 #import "terminal-window.h"
 #import "application.h"
@@ -24,39 +25,24 @@
 {
 	if ((self = [super init]))
 	{
-		BPTR lock;
-
 #ifdef DEBUG
 		[OBContext trapDeallocatedObjects: YES];
 #endif
 		[OBLocalizedString openCatalog:@APP_TITLE ".catalog" withLocale:NULL];
 
+		if (!(_executablePath = [Application getExecutableName]))
+			return nil;
 
 		self.title = @APP_TITLE;
 		self.author = @APP_AUTHOR;
 		self.copyright = @APP_COPYRIGHT;
 		self.applicationVersion = @APP_VERSION;
 		self.usedClasses = [OBArray arrayWithObjects: @"PowerTerm.mcc", nil];
-
 		self.description = OBL(@"Serial Port Terminal", @"Application Description");
 		self.base = @APP_TITLE;
-
-		[self parseWBStartupMessage];
-
-		if (self.executablePath == nil)
-		{
-			if ((lock = Lock("PROGDIR:" APP_TITLE, SHARED_LOCK)))
-			{
-				UBYTE buffer[1024];
-
-				if (NameFromLock(lock, buffer, sizeof(buffer)))
-					_executablePath = [OBString stringWithCString: buffer encoding: MIBENUM_SYSTEM];
-
-				UnLock(lock);
-			}
-		}
-
 		self.diskObject = GetDiskObject((STRPTR)self.executablePath.nativeCString);
+
+		_startupConfigurationPath = [Application getStartupConfigurationPath];
 
 		return self;
 	}
@@ -158,29 +144,59 @@
 }
 
 extern struct WBStartup *_WBenchMsg; // from startup code
--(VOID) parseWBStartupMessage
++(OBString *) getStartupConfigurationPath
 {
 	OBString *fileName;
 	UBYTE buffer[1024];
 	struct WBArg;
 
 	if (!_WBenchMsg)
-		return;
-
-	if (NameFromLock(_WBenchMsg->sm_ArgList[0].wa_Lock, buffer, sizeof(buffer)) != 0)
-	{
-		fileName = [OBString stringWithCString: _WBenchMsg->sm_ArgList[0].wa_Name encoding: MIBENUM_SYSTEM];
-		_executablePath = [[OBString stringWithCString: buffer encoding: MIBENUM_SYSTEM] stringByAddingPathComponent: fileName];
-	}
+		return nil;
 
 	if (_WBenchMsg->sm_NumArgs < 2)
-		return;
+		return nil;
 
 	if (NameFromLock(_WBenchMsg->sm_ArgList[1].wa_Lock, buffer, sizeof(buffer)) == 0)
-		return;
+		return nil;
 
 	fileName = [OBString stringWithCString: _WBenchMsg->sm_ArgList[1].wa_Name encoding: MIBENUM_SYSTEM];
-	_startupConfigurationPath = [[OBString stringWithCString: buffer encoding: MIBENUM_SYSTEM] stringByAddingPathComponent: fileName];
+	return [[OBString stringWithCString: buffer encoding: MIBENUM_SYSTEM] stringByAddingPathComponent: fileName];
+}
+
++(OBString *) getExecutableName
+{
+	OBString *executablePath = nil;
+	UBYTE programName[PATH_MAX];
+	struct WBArg;
+
+	if (_WBenchMsg && _WBenchMsg->sm_NumArgs >= 1 && NameFromLock(_WBenchMsg->sm_ArgList[0].wa_Lock, programName, sizeof(programName)) != 0)
+	{
+		OBString *fileName = [OBString stringWithCString: _WBenchMsg->sm_ArgList[0].wa_Name encoding: MIBENUM_SYSTEM];
+		executablePath = [[OBString stringWithCString: programName encoding: MIBENUM_SYSTEM] stringByAddingPathComponent: fileName];
+	}
+	else
+	{
+		LONG res = GetProgramName(programName, sizeof(programName));
+		if (res == 0 || !strstr(programName, ":"))
+		{
+			UBYTE progdirPath[PATH_MAX] = {'P', 'R', 'O', 'G', 'D', 'I', 'R', ':', '\0'};
+			BPTR lock;
+
+			if (res != 0)
+				AddPart(progdirPath, res ? FilePart(programName) : APP_TITLE, sizeof(progdirPath));
+
+			if ((lock = Lock(progdirPath, SHARED_LOCK)))
+			{
+				if (NameFromLock(lock, progdirPath, sizeof(progdirPath)))
+					executablePath = [OBString stringWithCString: progdirPath encoding: MIBENUM_SYSTEM];
+
+				UnLock(lock);
+			}
+		}
+		else // GetProgramName() returned absolute path, we can use it as is.
+			executablePath = [OBString stringWithCString: programName encoding: MIBENUM_SYSTEM];
+	}
+	return executablePath;
 }
 
 @end

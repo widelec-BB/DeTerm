@@ -38,6 +38,8 @@
 
 #define MUI_IMAGE_FILE_STR(path) "\33I[4:" path ".mbr]"
 
+#define PATH_MAX 1024
+
 #ifdef DEBUG
 #define _between(a,x,b) ((x)>=(a) && (x)<=(b))
 #define is_visible_ascii(x) _between(32, x, 127) 
