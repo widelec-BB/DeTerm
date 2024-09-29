@@ -381,7 +381,8 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 
 	if (_localEchoMode == MenuLocalEchoBeforeSend)
 	{
-		[_term write: [OBData dataWithBytesNoCopy: _term.outPtr + nextEchoStart length: _term.outLen - nextEchoStart] encoding: MIBENUM_UTF_8];
+		OBData *data = [OBData dataWithBytesNoCopy: _term.outPtr + nextEchoStart length: _term.outLen - nextEchoStart freeWhenDone: NO];
+		[_term write: data encoding: MIBENUM_UTF_8];
 		nextEchoStart = _term.outLen;
 	}
 	if (_sendMode == MenuSendModeInteractive || lastChar == 0x0D || lastChar == 0x0A)
@@ -394,6 +395,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		else
 			data = [OBData dataWithBytes: _term.outPtr length: _term.outLen];
 
+		DumpBinaryData((UBYTE*)data.bytes, data.length);
 		[_serialDevice write: data];
 		[_term outFlush];
 		nextEchoStart = 0;
