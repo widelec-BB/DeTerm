@@ -11,7 +11,8 @@
 @implementation Terminal
 {
 	LineEndMode _lineEndMode;
-	OBMutableData *_conversionBuffer;
+	OBMutableData *_conversionBuffer, *_utfBuffer;
+	ULONG _utfNeeded;
 }
 
 @synthesize lineEndMode = _lineEndMode;
@@ -34,6 +35,8 @@
 		self.lFasCRLF = NO;
 		self->_lineEndMode = LineEndModeCRLF;
 		self->_conversionBuffer = [OBMutableData dataWithCapacity: 1024];
+		self->_utfBuffer = [OBMutableData dataWithCapacity: 4];
+		self->_utfNeeded = 0;
 	}
 	return self;
 }
@@ -60,6 +63,7 @@
 -(VOID) write: (OBData *)data encoding: (ULONG)characterEncoding
 {
 	OBString *str;
+	ENTER();
 
 	if (self->_lineEndMode != LineEndModeCRLF) 
 	{
@@ -85,6 +89,68 @@
 	if (characterEncoding == MIBENUM_INVALID)
 	{
 		[super write: (APTR)data.bytes length: data.length];
+		LEAVE();
+		return;
+	}
+
+	if (characterEncoding == MIBENUM_UTF_8)
+	{
+		ULONG unicodeSafeCount = (ULONG)MAX((LONG)data.length - 4, 0);
+		ULONG bytesLength = data.length, i;
+		UBYTE *bytes = (UBYTE*)data.bytes;
+		ULONG utfReminder = MIN(self->_utfNeeded, data.length);
+
+		if (utfReminder > 0)
+		{
+			[self->_utfBuffer appendBytes: data.bytes length: utfReminder];
+			bytes += utfReminder;
+			bytesLength -= utfReminder;
+			self->_utfNeeded -= utfReminder;
+			if (self->_utfNeeded > 0)
+			{
+				LEAVE();
+				return;
+			}
+			
+			[super writeUnicode: (APTR)self->_utfBuffer.bytes length: self->_utfBuffer.length format: MUIV_PowerTerm_WriteUnicode_UTF8];
+			self->_utfBuffer.length = 0;
+		}
+
+		for (i = unicodeSafeCount; i < bytesLength; i++)
+		{
+			if (bytes[i] >= 0x00 && bytes[i] <= 0x7f)
+			{
+				unicodeSafeCount += 1;
+				continue;
+			}
+
+			if ((bytes[i] >= 0xf0 && bytes[i] <= 0xf4) && bytesLength - i < 4)
+			{
+				[self->_utfBuffer appendBytes: &bytes[i] length: bytesLength - i];
+				self->_utfNeeded = 4 - bytesLength + i;
+				break;
+			}
+
+			if ((bytes[i] >= 0xe0 && bytes[i] <= 0xef) && bytesLength - i < 3)
+			{
+				[self->_utfBuffer appendBytes: &bytes[i] length: bytesLength - i];
+				self->_utfNeeded = 3 - bytesLength + i;
+				break;
+			}
+
+			if ((bytes[i] >= 0xc2 && bytes[i] <= 0xdf) && bytesLength - i < 2)
+			{
+				[self->_utfBuffer appendBytes: &bytes[i] length: bytesLength - i];
+				self->_utfNeeded = 2 - bytesLength + i;
+				break;
+			}
+
+			unicodeSafeCount += 1;
+		}
+
+		if (unicodeSafeCount > 0) 
+			[super writeUnicode: bytes length: unicodeSafeCount format: MUIV_PowerTerm_WriteUnicode_UTF8];
+		LEAVE();
 		return;
 	}
 
