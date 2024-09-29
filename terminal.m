@@ -9,6 +9,12 @@
 #import "terminal.h"
 
 @implementation Terminal
+{
+	LineEndMode _lineEndMode;
+	OBMutableData *_conversionBuffer;
+}
+
+@synthesize lineEndMode = _lineEndMode;
 
 -(id) init
 {
@@ -24,6 +30,10 @@
 		self.localAlt = MUIV_PowerTerm_LocalAlt_Right;
 		self.destructiveBS = YES;
 		self.resizableHistory = YES;
+		self.cRasCRLF = NO;
+		self.lFasCRLF = NO;
+		self->_lineEndMode = LineEndModeCRLF;
+		self->_conversionBuffer = [OBMutableData dataWithCapacity: 1024];
 	}
 	return self;
 }
@@ -49,13 +59,38 @@
 
 -(VOID) write: (OBData *)data encoding: (ULONG)characterEncoding
 {
-	if (characterEncoding != MIBENUM_INVALID && characterEncoding != MIBENUM_UTF_8)
+	OBString *str;
+
+	if (self->_lineEndMode != LineEndModeCRLF) 
 	{
-		OBString *str = [OBString stringFromData: data encoding: characterEncoding];
-		[super writeUnicode: (APTR)str.cString length: str.length format: MUIV_PowerTerm_WriteUnicode_UTF8];
+		ULONG i;
+		UBYTE replace = self->_lineEndMode == LineEndModeLF ? '\n' : '\r'; 
+
+		self->_conversionBuffer.length = 0;
+
+		for (i = 0; i < data.length; i++)
+		{
+			if (((UBYTE*)data.bytes)[i] == replace)
+			{
+				[self->_conversionBuffer appendBytes: "\r\n" length: 2];
+			}
+			else
+			{
+				[self->_conversionBuffer appendBytes: &data.bytes[i] length: 1]; 
+			}
+		}
+		data = self->_conversionBuffer;
 	}
-	else
+
+	if (characterEncoding == MIBENUM_INVALID)
+	{
 		[super write: (APTR)data.bytes length: data.length];
+		return;
+	}
+
+	str = [OBString stringFromData: data encoding: characterEncoding];
+	[super writeUnicode: (APTR)str.cString length: str.length format: MUIV_PowerTerm_WriteUnicode_UTF8];
+	LEAVE();
 }
 
 @end

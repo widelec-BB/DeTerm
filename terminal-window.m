@@ -45,8 +45,9 @@ typedef enum
 	MenuSendModeInteractive = 45,
 	MenuSendModeLineBuffered,
 
-	MenuLFAsCRLF = 50,
-	MenuCRAsCRLF,
+	MenuEndLineCRLF = 50,
+	MenuEndLineCR,
+	MenuEndLineLF,
 
 	MenuTerminalEmulation = 256,
 } Menu;
@@ -60,9 +61,9 @@ typedef enum
 	__weak Terminal *_term;
 	__weak MUIScrollbar *_scrollbar;
 
-	__weak MUIMenu *_localEchoMenu, *_termEmulationModeMenu, *_sendModeMenu;
+	__weak MUIMenu *_localEchoMenu, *_termEmulationModeMenu, *_termEndLineModeMenu, *_sendModeMenu;
 	__weak MUIMenuitem *_disconnectMenuitem, *_termEmulationMenuitems[5], *_localEchoMenuitems[3], *_sendModeMenuitems[2];
-	__weak MUIMenuitem *_termResetMenuitem, *_CRAsCRLFMenuitem, *_LFAsCRLFMenuitem;
+	__weak MUIMenuitem *_termResetMenuitem, *_termEndLineMenuitems[3];
 
 	SerialDevice *_serialDevice;
 	ULONG _localEchoMode;
@@ -251,7 +252,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			self.localEchoMode = MenuLocalEchoOff;
 			self.sendMode = MenuSendModeInteractive;
 			self.terminalEmulationMode = MUIV_PowerTerm_Emulation_TTY;
-			_term.cRasCRLF = YES;
+
 			_unitString.integer = 0;
 
 			_xFlowCheckmark = xFlowCheckmark;
@@ -440,8 +441,11 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 				_termEmulationMenuitems[3] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"XTerm", @"XTerm terminal emulation") shortcut: nil userData: MenuTerminalEmulation + MUIV_PowerTerm_Emulation_XTerm checked: NO],
 				_termEmulationMenuitems[4] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Amiga", @"Amiga con-handler emulation") shortcut: nil userData: MenuTerminalEmulation + MUIV_PowerTerm_Emulation_Amiga checked: NO],
 			nil],
-			_CRAsCRLFMenuitem = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Interpret CR as CRLF", @"End line interpretation option") shortcut: nil userData: MenuCRAsCRLF checked: YES],
-			_LFAsCRLFMenuitem = [MUIMenuitem checkmarkItemWithTitle: OBL(@"Interpret LF as CRLF", @"End line interpretation option") shortcut: nil userData: MenuLFAsCRLF checked: NO],
+			_termEndLineModeMenu = [MUIMenu menuWithTitle: OBL(@"End Line...", @"Menu for selecting end line mark") objects:
+				_termEndLineMenuitems[0] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"CRLF", @"End line mark option") shortcut: nil userData: MenuEndLineCRLF checked: YES],
+				_termEndLineMenuitems[1] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"CR", @"End line mark option") shortcut: nil userData: MenuEndLineCR checked: NO],
+				_termEndLineMenuitems[2] = [MUIMenuitem checkmarkItemWithTitle: OBL(@"LF", @"End line mark option") shortcut: nil userData: MenuEndLineLF checked: NO],
+			nil],
 			[MUIMenuitem barItem],
 			[MUIMenuitem itemWithTitle: OBL(@"MUI...", @"Menu MUI Settings") shortcut: nil userData: MenuMUIPreferences],
 		nil],
@@ -510,13 +514,10 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 			self.sendMode = menuAction;
 		break;
 
-		case MenuCRAsCRLF:
-			_term.cRasCRLF = _CRAsCRLFMenuitem.checked;
-		break;
-
-		case MenuLFAsCRLF:
-			_term.lFasCRLF = _LFAsCRLFMenuitem.checked;
-		break;
+		case MenuEndLineCRLF:
+		case MenuEndLineCR:
+		case MenuEndLineLF:
+			self.terminalLineEndCode = menuAction - MenuEndLineCRLF;
 	}
 }
 
@@ -534,8 +535,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 		[OBNumber numberWithUnsignedLong: _localEchoMode], @"echo-mode",
 		[OBNumber numberWithUnsignedLong: _sendMode], @"send-mode",
 		[OBNumber numberWithUnsignedLong: _term.emulation], @"terminal-type",
-		[OBNumber numberWithBool: _CRAsCRLFMenuitem.checked], @"cr-as-crlf",
-		[OBNumber numberWithBool: _LFAsCRLFMenuitem.checked], @"lf-as-crlf",
+		LineEndModeToStr(_term.lineEndMode), @"end-line-code",
 		[CharsetOptions objectAtIndex: _charsetCycle.active], @"charset-mibenum",
 	nil];
 }
@@ -551,6 +551,7 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 {
 	ULONG i;
 	OBNumber *number;
+	OBString *string;
 
 	if (config == nil || config.count == 0)
 		return;
@@ -597,13 +598,13 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	if (number)
 		self.terminalEmulationMode = number.unsignedLongValue;
 
-	number = [config objectForKey: @"cr-as-crlf"];
-	if (number)
-		_CRAsCRLFMenuitem.checked = number.boolValue;
-
-	number = [config objectForKey: @"lf-as-crlf"];
-	if (number)
-		_LFAsCRLFMenuitem.checked = number.boolValue;
+	string = [config objectForKey: @"end-line-code"];
+	if (string)
+	{
+		LineEndMode val = LineEndModeFromStr(string);
+		if ((LONG)val != -1)
+			self.terminalLineEndCode = (ULONG)val;
+	}
 
 	number = [config objectForKey: @"charset-mibenum"];
 	if (number)
@@ -792,6 +793,15 @@ static OBArray *ParityOptionsLabels, *CharsetOptionsLabels;
 	for (i = 0; i < sizeof(_termEmulationMenuitems) / sizeof(*_termEmulationMenuitems); i++)
 		_termEmulationMenuitems[i].checked = i == value;
 	_term.emulation = value;
+}
+
+-(VOID) setTerminalLineEndCode: (ULONG)value
+{
+	ULONG i;
+	for (i = 0; i < sizeof(_termEndLineMenuitems) / sizeof(*_termEndLineMenuitems); i++)
+		_termEndLineMenuitems[i].checked = i == value;
+
+	_term.lineEndMode = (LineEndMode)value;
 }
 
 @end
