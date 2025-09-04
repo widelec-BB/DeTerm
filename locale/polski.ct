@@ -1,4 +1,4 @@
-## version $VER: Determ.catalog 1.1 (03.07.2022)
+## version $VER: Determ.catalog 1.2 (04.09.2025)
 ## language polski
 ## codeset 0
 ;
@@ -263,15 +263,25 @@ MSG_3dfa0a3c
 Amiga
 ; Amiga
 ;
-; (End line interpretation option)
-MSG_f1b6eac2
-Interpretuj CR jako CRLF
-; Interpret CR as CRLF
+; (Menu for selecting end line mark)
+MSG_eff6a912
+Znak koñca linii...
+; End Line...
 ;
-; (End line interpretation option)
-MSG_df78c19f
-Interpretuj LF jako CRLF
-; Interpret LF as CRLF
+; (End line mark option)
+MSG_d58f538f
+CRLF
+; CRLF
+;
+; (End line mark option)
+MSG_459eb5fd
+CR
+; CR
+;
+; (End line mark option)
+MSG_8111979a
+LF
+; LF
 ;
 ; (Menu MUI Settings)
 MSG_c3acedab
