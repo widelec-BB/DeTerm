@@ -1,7 +1,7 @@
 Short:          Serial port terminal
 Author:         Filip "widelec" Maryjanski
 Type:           comm/term
-Version:        1.1
+Version:        1.2
 Architecture:   ppc-morphos
 
 
@@ -13,11 +13,14 @@ Icon made by cah nggunung from www.flaticon.com (https://www.flaticon.com/premiu
 What do you need:
 -----------------
 
- - any computer with MorphOS 3.17 running on.
+ - any computer with MorphOS 3.19 running on.
 
 
 Changes:
 -----------------
+
+Version 1.2 (04.09.2025):
+ - minor bugs fixed.
 
 Version 1.1 (01.07.2022):
  - added bidirectional communication;
