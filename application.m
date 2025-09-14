@@ -16,6 +16,7 @@
 {
 	OBString *_startupConfigurationPath;
 	OBString *_executablePath;
+	MCCAboutbox *_aboutbox;
 }
 
 @synthesize lastConfiguration;
@@ -44,6 +45,14 @@
 
 		_startupConfigurationPath = [Application getStartupConfigurationPath];
 
+		_aboutbox = [[MCCAboutbox alloc] init];
+#ifdef __GIT_HASH__
+		_aboutbox.build = @__GIT_HASH__;
+#endif
+		_aboutbox.credits = [OBString stringWithFormat:
+			@"\33b%%p\33n\n\t" APP_AUTHOR "\n\33b%%I\33n\n\t%@\n\33b%%t\33n\n\tJaca\n\tTcheko",
+			OBL(@"cah nggunung from www.flaticon.com", @"Icon credits")];
+
 		return self;
 	}
 
@@ -62,7 +71,7 @@
 	if (!tw)
 		return;
 
-	[super instantiateWithWindows: tw, nil];
+	[super instantiateWithWindows: _aboutbox, tw, nil];
 
 	[super loadENV];
 	[tw loadConfiguration: self.lastConfiguration];
@@ -86,30 +95,19 @@
 
 -(VOID) closeWindow: (MUIWindow *)w
 {
+	ENTER();
 	[self removeObject: w];
 
 	[w killAllNotifies];
 
-	if (self.objects.count == 0)
+	if (self.objects.count == 1) // 1 -> coz we always have the _aboutbox
 		[self quit];
+	LEAVE();
 }
 
 -(VOID) about
 {
-	MCCAboutbox *aboutbox = [[MCCAboutbox alloc] init];
-	OBString *credits = @"\33b%p\33n\n\t" APP_AUTHOR "\n\33b%I\33n\n\t";
-
-	credits = [credits stringByAppendingString: OBL(@"cah nggunung from www.flaticon.com", @"Icon credits")];
-	credits = [credits stringByAppendingString: @"\n\33b%t\33n\n\tJaca\n\tTcheko"];
-
-#ifdef __GIT_HASH__
-	aboutbox.build = @__GIT_HASH__;
-#endif
-	aboutbox.credits = credits;
-
-	[self addObject: aboutbox];
-	aboutbox.open = YES;
-	[aboutbox notify: @selector(open) trigger: NO performSelector: @selector(closeWindow:) withTarget: self withObject: aboutbox];
+	_aboutbox.open = YES;
 }
 
 -(VOID) openNewTerminalWindow
